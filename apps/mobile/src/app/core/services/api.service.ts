@@ -3,14 +3,30 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { 
-  LoginRequest, 
-  LoginResponse, 
-  ApiResponse,
-  ErrorResponse 
-} from '@public-digit/shared-types';
+// Define types locally since shared-types might not be available
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 
-// Placeholder types for better readability; define these in your shared-types package
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  token: string;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
+// Placeholder types
 type ProfileData = any;
 type ElectionData = any;
 
@@ -18,15 +34,9 @@ type ElectionData = any;
   providedIn: 'root'
 })
 export class ApiService {
-  // Use inject() for dependency injection (modern Angular practice)
   private http = inject(HttpClient);
-  
-  // Use a private, readonly property
-  private readonly baseUrl = 'http://localhost:8000'; // Your Laravel backend URL
+  private readonly baseUrl = 'http://localhost:8000';
 
-  /**
-   * Creates HttpHeaders, including Content-Type, Accept, and Authorization if a token is present.
-   */
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     
@@ -35,7 +45,6 @@ export class ApiService {
       'Accept': 'application/json',
     });
 
-    // Conditionally set the Authorization header
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
@@ -45,80 +54,75 @@ export class ApiService {
 
   // --- Authentication endpoints ---
   login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
-    const url = `${this.baseUrl}/mobile/v1/auth/login`;
+    const url = `${this.baseUrl}/api/mobile/v1/auth/login`; // ✅ Correct endpoint
     return this.http.post<ApiResponse<LoginResponse>>(url, credentials, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   logout(): Observable<ApiResponse<void>> {
-    const url = `${this.baseUrl}/mobile/v1/auth/logout`;
-    // Passing {} as the body for the POST request
+    const url = `${this.baseUrl}/api/mobile/v1/auth/logout`; // ✅ Correct endpoint
     return this.http.post<ApiResponse<void>>(url, {}, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   getCurrentUser(): Observable<ApiResponse<LoginResponse>> {
-    const url = `${this.baseUrl}/mobile/v1/auth/me`;
+    const url = `${this.baseUrl}/api/mobile/v1/auth/me`; // ✅ Correct endpoint
     return this.http.get<ApiResponse<LoginResponse>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  // --- Profile endpoints ---
-  getProfile(): Observable<ApiResponse<ProfileData>> {
-    const url = `${this.baseUrl}/mobile/v1/profile`;
-    return this.http.get<ApiResponse<ProfileData>>(url, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
-  }
-
-  updateProfile(profileData: ProfileData): Observable<ApiResponse<ProfileData>> {
-    const url = `${this.baseUrl}/mobile/v1/profile`;
-    return this.http.put<ApiResponse<ProfileData>>(url, profileData, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // --- Remove non-existent profile endpoints ---
+  // getProfile() and updateProfile() removed - they don't exist in Laravel
 
   // --- Elections endpoints ---
   getElections(): Observable<ApiResponse<ElectionData[]>> {
-    const url = `${this.baseUrl}/mobile/v1/elections`;
+    // ✅ CORRECTED: Use actual Laravel route
+    const url = `${this.baseUrl}/api/elections`;
     return this.http.get<ApiResponse<ElectionData[]>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  getActiveElections(): Observable<ApiResponse<ElectionData[]>> {
-    const url = `${this.baseUrl}/mobile/v1/elections/active`;
-    return this.http.get<ApiResponse<ElectionData[]>>(url, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // ❌ REMOVED: getActiveElections() - route doesn't exist in Laravel
 
   getElection(id: string): Observable<ApiResponse<ElectionData>> {
-    const url = `${this.baseUrl}/mobile/v1/elections/${id}`;
+    // ✅ CORRECTED: Use actual Laravel route
+    const url = `${this.baseUrl}/api/elections/${id}`;
     return this.http.get<ApiResponse<ElectionData>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  // --- Platform endpoints ---
+  getPlatformStats(): Observable<ApiResponse<any>> {
+    // ✅ CORRECTED: Use actual Laravel route
+    const url = `${this.baseUrl}/api/platform/stats`;
+    return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   // --- Health check ---
   healthCheck(): Observable<ApiResponse<any>> {
-    const url = `${this.baseUrl}/mobile/v1/health`;
+    // ✅ CORRECTED: Use actual Laravel route
+    const url = `${this.baseUrl}/api/health`;
     return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Centralized error handling function for API requests.
-   * Uses HttpErrorResponse typing for better precision.
-   */
+  databaseHealthCheck(): Observable<ApiResponse<any>> {
+    // ✅ CORRECTED: Use actual Laravel route
+    const url = `${this.baseUrl}/api/database/health`;
+    return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('API Error:', error);
     
-    // Check if the error has a defined API message structure (e.g., Laravel validation error)
     if (error.error && typeof error.error === 'object' && error.error.message) {
-      // Use the specific message from the API response body
       return throwError(() => new Error(error.error.message));
     } else if (error.message) {
-      // Fallback for general HTTP errors (e.g., 404, network failure)
       return throwError(() => new Error(`HTTP Error (${error.status}): ${error.message}`));
     }
     
-    // Default fallback for unknown errors
     return throwError(() => new Error('An unknown network error occurred.'));
   }
 }

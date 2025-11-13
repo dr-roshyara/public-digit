@@ -1,18 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guards'; // Import the functional route guard
+import { LoginComponent } from './auth/login/login.component';
 
 export const routes: Routes = [
+   { path: '', component: LoginComponent },
+  { path: 'login', component: LoginComponent },
+  // Add other routes as needed
+  { path: '**', redirectTo: '' },
   // Default/Root Path
-  {
-    path: '',
-    loadComponent: () => import('./home/home.page').then(m => m.HomePage)
-  },
-  
-  // Authentication Routes
-  {
-    path: 'login', 
-    loadComponent: () => import('./auth/login/login.page').then(m => m.LoginPage)
-  },
   
   // Protected Routes (requires authentication)
   {

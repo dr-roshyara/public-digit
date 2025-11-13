@@ -4,83 +4,32 @@
   <meta charset="utf-8">
   <title>PublicDigit</title>
   <base href="/">
-  
-  <!-- Enhanced viewport for proper mobile layout -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="format-detection" content="telephone=no">
   <meta name="msapplication-tap-highlight" content="no">
-  
-  <!-- Status bar styling for Android -->
-  <meta name="theme-color" content="#667eea">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
+  <!-- ✅ FIXED Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" 
-        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com https://newsapi.org; 
-                 style-src 'self' 'unsafe-inline'; 
-                 script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
-                 connect-src 'self' https://newsapi.org ws: wss:;">
-  
-  <style>
-    /* Critical: Prevent body from extending behind system UI */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      position: fixed;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    /* Safe area container */
-    body {
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
-    }
-    
-    #app-loading {
-      position: fixed;
-      top: env(safe-area-inset-top);
-      left: env(safe-area-inset-left);
-      right: env(safe-area-inset-right);
-      bottom: env(safe-area-inset-bottom);
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    app-root:empty {
-      display: none;
-    }
-  </style>
+        content="default-src 'self' http://localhost:8000 https://localhost:8000;
+                 connect-src 'self' http://localhost:8000 https://localhost:8000 https://newsapi.org ws: wss:;
+                 script-src 'self' 'unsafe-inline' 'unsafe-eval';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data: https: http:;
+                 font-src 'self' data:;
+                 media-src 'self' data:;">
+
+  <!-- For development, you can also try a more permissive policy temporarily -->
+  <!-- 
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src * 'unsafe-inline' 'unsafe-eval';
+                 connect-src * 'unsafe-inline';
+                 script-src * 'unsafe-inline' 'unsafe-eval';
+                 style-src * 'unsafe-inline';">
+  -->
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-  <div id="app-loading">
-    <div style="color: white; text-align: center;">
-      <h2>Loading PublicDigit...</h2>
-      <div class="spinner"></div>
-    </div>
-  </div>
-  
   <app-root></app-root>
 </body>
-</html>
+</html>  

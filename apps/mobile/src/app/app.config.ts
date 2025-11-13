@@ -6,6 +6,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { AuthService } from './core/services/auth.service';
 
 // FIX: Renamed import from 'appRoutes' to 'routes' to match the actual export in './app.routes'
 import { routes } from './app.routes'; 
@@ -19,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     
     // Router provider (now using the correctly imported 'routes')
     provideRouter(routes), 
+    AuthService,
     
     // HTTP providers
     provideHttpClient(withInterceptors([authInterceptor])),

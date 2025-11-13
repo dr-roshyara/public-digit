@@ -1,83 +1,67 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { Router } from '@angular/router';
-
-import { ApiService } from './api.service';
-import { LoginRequest, LoginResponse, MobileUser } from '@public-digit/shared-types';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs';
+import { ApiService, LoginRequest, LoginResponse, User } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<MobileUser | null>(null);
+  private apiService = inject(ApiService);
+  
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  private tokenKey = 'auth_token';
-  private userKey = 'current_user';
-
-  constructor(
-    private apiService: ApiService,
-    private router: Router
-  ) {
-    this.loadStoredAuth();
-  }
-
-  login(credentials: LoginRequest): Observable<any> {
+  login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.apiService.login(credentials).pipe(
       tap(response => {
-        this.setAuth(response.data);
-      })
+        if (response.success && response.data) {
+          this.setSession(response.data);
+          this.currentUserSubject.next(response.data.user);
+        }
+      }),
+      map(response => response.data!)
     );
   }
 
-  logout(): void {
-    this.apiService.logout().subscribe({
-      next: () => this.clearAuth(),
-      error: () => this.clearAuth() // Clear auth even if API call fails
-    });
-  }
-
-  getCurrentUser(): Observable<any> {
-    return this.apiService.getCurrentUser().pipe(
-      tap(response => {
-        this.currentUserSubject.next(response.data.user);
-        localStorage.setItem(this.userKey, JSON.stringify(response.data.user));
-      })
+  logout(): Observable<void> {
+    return this.apiService.logout().pipe(
+      tap(() => {
+        this.clearSession();
+        this.currentUserSubject.next(null);
+      }),
+      map(() => undefined)
     );
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!localStorage.getItem('auth_token');
+  }
+
+  getCurrentUser(): Observable<User> {
+    if (this.isAuthenticated()) {
+      return this.apiService.getCurrentUser().pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.currentUserSubject.next(response.data.user);
+          }
+        }),
+        map(response => response.data!.user)
+      );
+    }
+    return this.currentUser$;
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem('auth_token');
   }
 
-  private setAuth(authData: LoginResponse): void {
-    localStorage.setItem(this.tokenKey, authData.token);
-    localStorage.setItem(this.userKey, JSON.stringify(authData.user));
-    this.currentUserSubject.next(authData.user);
+  private setSession(authResult: LoginResponse): void {
+    localStorage.setItem('auth_token', authResult.token);
+    localStorage.setItem('current_user', JSON.stringify(authResult.user));
   }
 
-  private clearAuth(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/']);
-  }
-
-  private loadStoredAuth(): void {
-    const token = localStorage.getItem(this.tokenKey);
-    const userStr = localStorage.getItem(this.userKey);
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        this.currentUserSubject.next(user);
-      } catch (error) {
-        this.clearAuth();
-      }
-    }
+  private clearSession(): void {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('current_user');
   }
 }

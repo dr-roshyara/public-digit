@@ -1,7 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
-import { App } from './app/app';
-
+// import { App } from './app/app';
+import { AppComponent } from './app/app.component';
 /**
  * Performance-optimized bootstrap for mobile
  */
@@ -38,7 +38,8 @@ function initializeApp(): void {
   }
 
   // Bootstrap with error handling
-  bootstrapApplication(App, appConfig) 
+  //bootstrapApplication(App, appConfig) 
+  bootstrapApplication(AppComponent, appConfig)
     .then(() => {
       setupSafeAreas();
       console.log('App bootstrapped successfully');
