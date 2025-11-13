@@ -1,0 +1,59 @@
+/* You can add global styles to this file, and also import other style files */
+.app-container {
+  min-height: 100vh;
+  /* Background gradient */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Default font stack */
+  font-family: -apple-system, BlinkMacMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.app-header {
+  /* Semi-transparent background with blur effect (Glassmorphism) */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.auth-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+}
+
+.logout-btn {
+  /* Button styling */
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px; /* Fully rounded pill shape */
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn:active {
+  transform: scale(0.98);
+}
+
+.app-main {
+  padding: 0;
+}

@@ -1,0 +1,45 @@
+// Performance optimizations
+.app-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  // Performance optimizations
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  
+  // Prevent flash
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.app-header {
+  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  
+  // Performance
+  position: relative;
+  z-index: 10;
+}
+
+// Optimize animations
+* {
+  box-sizing: border-box;
+}
+
+// Hardware acceleration for better performance
+.optimized-animation {
+  transform: translateZ(0);
+  will-change: transform;
+}

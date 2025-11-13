@@ -1,0 +1,13 @@
+public-digit-platform/libs
+public-digit-platform/libs/shared
+public-digit-platform/libs/shared/types
+public-digit-platform/libs/shared/types/package.json
+public-digit-platform/libs/shared/types/project.json
+public-digit-platform/libs/shared/types/README.md
+public-digit-platform/libs/shared/types/src
+public-digit-platform/libs/shared/types/src/index.ts
+public-digit-platform/libs/shared/types/src/lib
+public-digit-platform/libs/shared/types/src/lib/mobile-api.types.ts
+public-digit-platform/libs/shared/types/src/lib/types.ts
+public-digit-platform/libs/shared/types/tsconfig.json
+public-digit-platform/libs/shared/types/tsconfig.lib.json

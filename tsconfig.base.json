@@ -1,0 +1,33 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2022", "dom"],
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    // CRITICAL FIX: Add baseUrl for path mapping resolution
+    "baseUrl": ".",
+    
+    "paths": {
+      "@public-digit/shared-types": ["libs/shared/types/src/index.ts"],
+      // Keep this if you use both aliases, but focus on the one used in the service file.
+      "@publicdigit/shared-types": ["shared-types/src/index.ts"] 
+    }
+  },
+  "exclude": ["node_modules", "tmp", "dist"]
+}

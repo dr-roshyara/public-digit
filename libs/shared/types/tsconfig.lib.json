@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "@public-digit/dist/libs/shared/types",
+    "declaration": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}
