@@ -1,0 +1,219 @@
+{
+  "version": "1.0.0",
+  "schema_version": "2025.1",
+  "last_updated": "2025-11-15T15:00:00Z",
+  "application": "PublicDigit Election Platform - Mobile App",
+  "technology": "Angular 17+ with Capacitor",
+
+  "domain_strategy": {
+    "strict_separation": true,
+    "allowed_domains": [
+      "*.publicdigit.com",
+      "app.publicdigit.com"
+    ],
+    "prohibited_domains": [
+      "admin.publicdigit.com",
+      "api.publicdigit.com"
+    ],
+    "routing_rules": {
+      "*.publicdigit.com": {
+        "purpose": "tenant_web_access",
+        "frontend": "angular",
+        "backend": "tenant_context",
+        "database": "tenant_db"
+      },
+      "app.publicdigit.com": {
+        "purpose": "mobile_app",
+        "frontend": "angular_mobile",
+        "backend": "tenant_context",
+        "database": "tenant_db"
+      }
+    },
+    "development_domains": {
+      "localhost:4200": {
+        "purpose": "development",
+        "supports_subdomain": true
+      },
+      "nrna.localhost:4200": {
+        "purpose": "development_with_tenant",
+        "tenant": "nrna"
+      }
+    }
+  },
+
+  "frontend_boundaries": {
+    "technology": "angular",
+    "purpose": "tenant_member_experience",
+    "allowed_features": [
+      "election_participation",
+      "profile_management",
+      "forum_access",
+      "payment_processing",
+      "member_dashboard"
+    ],
+    "prohibited_features": [
+      "landlord_administration",
+      "tenant_management",
+      "platform_analytics",
+      "system_configuration",
+      "user_administration"
+    ],
+    "allowed_routes": [
+      "/",
+      "/login",
+      "/dashboard",
+      "/profile/*",
+      "/elections/*",
+      "/finance/*",
+      "/forum/*"
+    ],
+    "prohibited_routes": [
+      "/admin/*",
+      "/api/admin/*",
+      "/landlord/*",
+      "/platform/*",
+      "/tenants/*"
+    ]
+  },
+
+  "ddd_contexts": {
+    "responsibility": "tenant_contexts_only",
+    "platform_contexts": {
+      "note": "Handled by backend - Angular does NOT access these",
+      "Platform": {
+        "purpose": "tenant_management",
+        "database": "landlord",
+        "access": "prohibited_from_angular"
+      },
+      "TenantAuth": {
+        "purpose": "cross_tenant_auth",
+        "database": "landlord",
+        "access": "limited_to_login_only"
+      }
+    },
+    "tenant_contexts": {
+      "note": "Angular implements UI for these contexts",
+      "Membership": {
+        "purpose": "member_profiles_and_roles",
+        "database": "tenant",
+        "features": ["profile_view", "profile_edit", "member_list"],
+        "allowed_operations": ["read_own", "update_own"],
+        "service": "MembershipService",
+        "module": "ProfileModule"
+      },
+      "Election": {
+        "purpose": "voting_operations",
+        "database": "tenant",
+        "features": ["election_list", "election_detail", "cast_vote", "view_results"],
+        "allowed_operations": ["read", "vote", "view_results"],
+        "service": "ElectionService",
+        "module": "ElectionsModule"
+      },
+      "Finance": {
+        "purpose": "payment_processing",
+        "database": "tenant",
+        "features": ["payment_history", "make_payment", "view_invoices"],
+        "allowed_operations": ["read_own", "make_payment"],
+        "service": "FinanceService",
+        "module": "FinanceModule"
+      },
+      "Communication": {
+        "purpose": "member_forums_and_discussions",
+        "database": "tenant",
+        "features": ["forum_list", "forum_thread", "create_post", "reply"],
+        "allowed_operations": ["read", "create", "reply", "edit_own"],
+        "service": "CommunicationService",
+        "module": "ForumModule"
+      }
+    }
+  },
+
+  "api_access": {
+    "base_url_strategy": "domain_based",
+    "allowed_api_patterns": [
+      "/api/v1/auth/*",
+      "/api/v1/profile/*",
+      "/api/v1/elections/*",
+      "/api/v1/finance/*",
+      "/api/v1/forum/*"
+    ],
+    "prohibited_api_patterns": [
+      "/api/admin/*",
+      "/api/platform/*",
+      "/api/landlord/*",
+      "/api/v1/tenants/*"
+    ],
+    "headers_required": [
+      "X-Tenant-Slug",
+      "X-Requested-With",
+      "Authorization (for protected routes)"
+    ]
+  },
+
+  "security_boundaries": {
+    "strict_tenant_isolation": true,
+    "no_cross_tenant_queries": true,
+    "frontend_technology_isolation": true,
+    "api_route_separation": true,
+    "token_based_authentication": true,
+    "secure_storage": "capacitor_preferences"
+  },
+
+  "architectural_rules": {
+    "1_no_inertia_patterns": "Angular app must NOT contain Inertia.js or Vue3 patterns",
+    "2_no_admin_routes": "Angular app must NOT access /admin/* or /api/admin/* routes",
+    "3_tenant_isolation": "All API calls must include X-Tenant-Slug header",
+    "4_no_landlord_db": "Angular app must NEVER access landlord database directly",
+    "5_context_separation": "Each DDD context must have dedicated service and module",
+    "6_type_safety": "100% TypeScript with strict mode, no any types",
+    "7_responsive_design": "Must work on desktop (1920px) and mobile (360px)",
+    "8_secure_storage": "Use Capacitor Preferences for mobile, localStorage for web"
+  },
+
+  "deployment": {
+    "development": {
+      "serve": "nx serve mobile",
+      "build": "nx build mobile --configuration=development",
+      "platform": "browser",
+      "url": "http://localhost:4200"
+    },
+    "production": {
+      "web": {
+        "build": "nx build mobile --configuration=production",
+        "deploy_to": "CDN (Static hosting)",
+        "domain": "*.publicdigit.com"
+      },
+      "mobile": {
+        "android": {
+          "build": "nx build mobile --configuration=production && npx cap sync android",
+          "deploy_to": "Google Play Store",
+          "domain": "app.publicdigit.com"
+        },
+        "ios": {
+          "build": "nx build mobile --configuration=production && npx cap sync ios",
+          "deploy_to": "Apple App Store",
+          "domain": "app.publicdigit.com"
+        }
+      }
+    }
+  },
+
+  "validation": {
+    "pre_commit": [
+      "npm run lint",
+      "npm run type-check",
+      "npm run architecture:validate"
+    ],
+    "pre_push": [
+      "npm run build",
+      "npm run test"
+    ],
+    "ci_cd": [
+      "architecture:validate",
+      "lint",
+      "type-check",
+      "test",
+      "build"
+    ]
+  }
+}

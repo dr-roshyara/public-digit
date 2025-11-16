@@ -1,7 +1,14 @@
+/**
+ * Production Environment
+ * Uses production API URL for all platforms
+ */
 export const environment = {
   production: true,
   appId: 'com.publicdigit.app',
   appName: 'PublicDigit',
-  apiUrl: 'https://api.publicdigit.com/v1',
+
+  // Production always uses the public domain
+  apiUrl: 'https://publicdigit.com/api/v1',
+
   version: '1.0.0'
 };

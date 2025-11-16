@@ -1,0 +1,212 @@
+{
+  "name": "mobile",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "pd",
+  "sourceRoot": "apps/mobile/src",
+  "tags": ["platform:mobile", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/mobile/browser",
+        "index": "apps/mobile/src/index.html",
+        "main": "apps/mobile/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/mobile/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/mobile/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/mobile/src/assets",
+            "output": "/assets"
+          },
+          {
+            "glob": "favicon.ico",
+            "input": "apps/mobile/src",
+            "output": "/"
+          }
+        ],
+        "styles": [
+          "apps/mobile/src/styles.scss"
+        ],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "6kb",
+              "maximumError": "10kb"
+            }
+          ],
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "buildOptimizer": true,
+          "optimization": {
+            "scripts": true,
+            "styles": {
+              "minify": true,
+              "inlineCritical": false
+            },
+            "fonts": true
+          },
+          "fileReplacements": [
+            {
+              "replace": "apps/mobile/src/environments/environment.ts",
+              "with": "apps/mobile/src/environments/environment.prod.ts"
+            }
+          ]
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/mobile/src/environments/environment.ts",
+              "with": "apps/mobile/src/environments/environment.dev.ts"
+            }
+          ]
+        },
+        "staging": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            }
+          ],
+          "outputHashing": "all",
+          "sourceMap": true,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "buildOptimizer": true,
+          "optimization": {
+            "scripts": false,
+            "styles": {
+              "minify": true,
+              "inlineCritical": false
+            },
+            "fonts": true
+          },
+          "fileReplacements": [
+            {
+              "replace": "apps/mobile/src/environments/environment.ts",
+              "with": "apps/mobile/src/environments/environment.staging.ts"
+            }
+          ]
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "mobile:build:production"
+        },
+        "development": {
+          "buildTarget": "mobile:build:development",
+          "port": 4200,
+          "host": "localhost"
+        },
+        "staging": {
+          "buildTarget": "mobile:build:staging"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "serve-mobile": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "options": {
+        "buildTarget": "mobile:build:development",
+        "port": 4200,
+        "host": "0.0.0.0",
+        "disableHostCheck": true,
+        "publicHost": "localhost"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "mobile:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "apps/mobile/**/*.ts",
+          "apps/mobile/**/*.html",
+          "apps/mobile/**/*.scss"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/mobile/jest.config.ts",
+        "tsConfig": "apps/mobile/tsconfig.spec.json",
+        "passWithNoTests": true
+      }
+    },
+    "cap:sync": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx build mobile --configuration=production",
+          "cd apps/mobile && npx cap sync android"
+        ],
+        "parallel": false
+      }
+    },
+    "cap:sync:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx build mobile --configuration=development",
+          "cd apps/mobile && npx cap sync android"
+        ],
+        "parallel": false
+      }
+    },
+    "cap:open:android": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/mobile && npx cap open android"
+      }
+    },
+    "android:build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx build mobile --configuration=production",
+          "cd apps/mobile && npx cap sync android",
+          "cd apps/mobile/android && ./gradlew assembleDebug"
+        ],
+        "parallel": false
+      }
+    }
+  }
+} 

@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "@public-digit/libs/shared/types/tsconfig.json",
   "compilerOptions": {
     "outDir": "@public-digit/dist/libs/shared/types",
     "declaration": true,

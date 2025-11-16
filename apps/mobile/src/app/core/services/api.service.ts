@@ -2,31 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { LoginRequest, LoginResponse, User, ApiResponse, Tenant } from '../models/auth.models';
 
-// Define types locally since shared-types might not be available
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-export interface LoginResponse {
-  user: User;
-  token: string;
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-}
-
-// Placeholder types
+// Placeholder types for non-auth endpoints
 type ProfileData = any;
 type ElectionData = any;
 
@@ -35,81 +14,107 @@ type ElectionData = any;
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8000';
+  private readonly baseUrl = environment.apiUrl;
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
-    
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    });
-
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-
-    return headers;
+    // Note: Basic headers (Content-Type, Accept, X-Requested-With) are now
+    // handled by the apiHeadersInterceptor. Authorization header is handled
+    // by the authInterceptor. This method is kept for potential future
+    // custom headers but currently returns empty headers.
+    return new HttpHeaders();
   }
 
   // --- Authentication endpoints ---
   login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
-    const url = `${this.baseUrl}/api/mobile/v1/auth/login`; // ✅ Correct endpoint
+    const url = `${this.baseUrl}/auth/login`;
     return this.http.post<ApiResponse<LoginResponse>>(url, credentials, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   logout(): Observable<ApiResponse<void>> {
-    const url = `${this.baseUrl}/api/mobile/v1/auth/logout`; // ✅ Correct endpoint
+    const url = `${this.baseUrl}/auth/logout`;
     return this.http.post<ApiResponse<void>>(url, {}, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   getCurrentUser(): Observable<ApiResponse<LoginResponse>> {
-    const url = `${this.baseUrl}/api/mobile/v1/auth/me`; // ✅ Correct endpoint
+    const url = `${this.baseUrl}/auth/me`;
     return this.http.get<ApiResponse<LoginResponse>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  // --- Remove non-existent profile endpoints ---
-  // getProfile() and updateProfile() removed - they don't exist in Laravel
+  getUserTenants(): Observable<ApiResponse<Tenant[]>> {
+    const url = `${this.baseUrl}/auth/tenants`;
+    return this.http.get<ApiResponse<Tenant[]>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
 
   // --- Elections endpoints ---
   getElections(): Observable<ApiResponse<ElectionData[]>> {
-    // ✅ CORRECTED: Use actual Laravel route
-    const url = `${this.baseUrl}/api/elections`;
+    const url = `${this.baseUrl}/elections`;
     return this.http.get<ApiResponse<ElectionData[]>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  // ❌ REMOVED: getActiveElections() - route doesn't exist in Laravel
+  getActiveElections(): Observable<ApiResponse<ElectionData[]>> {
+    const url = `${this.baseUrl}/elections/active`;
+    return this.http.get<ApiResponse<ElectionData[]>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
 
   getElection(id: string): Observable<ApiResponse<ElectionData>> {
-    // ✅ CORRECTED: Use actual Laravel route
-    const url = `${this.baseUrl}/api/elections/${id}`;
+    const url = `${this.baseUrl}/elections/${id}`;
     return this.http.get<ApiResponse<ElectionData>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  getElectionCandidates(id: string): Observable<ApiResponse<any[]>> {
+    const url = `${this.baseUrl}/elections/${id}/candidates`;
+    return this.http.get<ApiResponse<any[]>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  getElectionResults(id: string): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/elections/${id}/results`;
+    return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  castVote(electionId: string, voteData: any): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/elections/${electionId}/vote`;
+    return this.http.post<ApiResponse<any>>(url, voteData, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  // --- Profile endpoints ---
+  getProfile(): Observable<ApiResponse<ProfileData>> {
+    const url = `${this.baseUrl}/profile`;
+    return this.http.get<ApiResponse<ProfileData>>(url, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  updateProfile(profileData: ProfileData): Observable<ApiResponse<ProfileData>> {
+    const url = `${this.baseUrl}/profile`;
+    return this.http.put<ApiResponse<ProfileData>>(url, profileData, { headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
+
+  getMyElections(): Observable<ApiResponse<ElectionData[]>> {
+    const url = `${this.baseUrl}/profile/elections`;
+    return this.http.get<ApiResponse<ElectionData[]>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   // --- Platform endpoints ---
   getPlatformStats(): Observable<ApiResponse<any>> {
-    // ✅ CORRECTED: Use actual Laravel route
-    const url = `${this.baseUrl}/api/platform/stats`;
+    const url = `${this.baseUrl}/stats`;
     return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   // --- Health check ---
   healthCheck(): Observable<ApiResponse<any>> {
-    // ✅ CORRECTED: Use actual Laravel route
-    const url = `${this.baseUrl}/api/health`;
-    return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
-  }
-
-  databaseHealthCheck(): Observable<ApiResponse<any>> {
-    // ✅ CORRECTED: Use actual Laravel route
-    const url = `${this.baseUrl}/api/database/health`;
+    const url = `${this.baseUrl}/health`;
     return this.http.get<ApiResponse<any>>(url, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }

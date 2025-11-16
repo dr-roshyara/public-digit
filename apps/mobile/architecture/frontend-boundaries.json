@@ -1,0 +1,219 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-11-15T15:00:00Z",
+  "application": "Angular Tenant Member App",
+
+  "angular_boundaries": {
+    "purpose": "tenant_member_experience_only",
+
+    "allowed_routes": {
+      "public": [
+        "/",
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/reset-password"
+      ],
+      "authenticated": [
+        "/dashboard",
+        "/profile",
+        "/profile/view",
+        "/profile/edit",
+        "/elections",
+        "/elections/:id",
+        "/elections/:id/vote",
+        "/elections/:id/results",
+        "/finance",
+        "/finance/payments",
+        "/finance/history",
+        "/forum",
+        "/forum/:id",
+        "/forum/:id/thread/:threadId",
+        "/settings"
+      ]
+    },
+
+    "prohibited_routes": {
+      "admin_routes": [
+        "/admin",
+        "/admin/*",
+        "/landlord",
+        "/landlord/*",
+        "/platform",
+        "/platform/*"
+      ],
+      "tenant_management": [
+        "/tenants",
+        "/tenants/*",
+        "/users/create",
+        "/users/delete"
+      ],
+      "system_routes": [
+        "/system",
+        "/system/*",
+        "/analytics",
+        "/billing"
+      ]
+    },
+
+    "allowed_api_calls": {
+      "authentication": [
+        "POST /api/v1/auth/login",
+        "POST /api/v1/auth/logout",
+        "POST /api/v1/auth/refresh",
+        "GET /api/v1/auth/me"
+      ],
+      "membership_context": [
+        "GET /api/v1/profile",
+        "PUT /api/v1/profile",
+        "POST /api/v1/profile/verify",
+        "GET /api/v1/profile/elections"
+      ],
+      "election_context": [
+        "GET /api/v1/elections",
+        "GET /api/v1/elections/active",
+        "GET /api/v1/elections/:id",
+        "POST /api/v1/elections/:id/vote",
+        "GET /api/v1/elections/:id/results",
+        "GET /api/v1/elections/:id/candidates"
+      ],
+      "finance_context": [
+        "GET /api/v1/finance/payments",
+        "POST /api/v1/finance/payments",
+        "GET /api/v1/finance/invoices",
+        "GET /api/v1/finance/balance"
+      ],
+      "communication_context": [
+        "GET /api/v1/forum/topics",
+        "GET /api/v1/forum/topics/:id",
+        "POST /api/v1/forum/topics",
+        "POST /api/v1/forum/topics/:id/posts",
+        "PUT /api/v1/forum/posts/:id",
+        "DELETE /api/v1/forum/posts/:id"
+      ]
+    },
+
+    "prohibited_api_calls": {
+      "admin_apis": [
+        "GET /api/admin/*",
+        "POST /api/admin/*",
+        "PUT /api/admin/*",
+        "DELETE /api/admin/*"
+      ],
+      "tenant_management": [
+        "POST /api/v1/tenants",
+        "PUT /api/v1/tenants/:id",
+        "DELETE /api/v1/tenants/:id",
+        "GET /api/admin/users"
+      ],
+      "platform_apis": [
+        "GET /api/platform/*",
+        "GET /api/landlord/*"
+      ]
+    }
+  },
+
+  "technology_constraints": {
+    "allowed_imports": [
+      "@angular/*",
+      "@capacitor/*",
+      "rxjs",
+      "rxjs/operators",
+      "@ngrx/* (if state management needed)",
+      "@ionic/* (if using Ionic components)"
+    ],
+    "prohibited_imports": [
+      "@inertiajs/*",
+      "vue",
+      "vue3",
+      "pinia",
+      "inertia",
+      "laravel-*"
+    ],
+    "prohibited_patterns": [
+      "useForm",
+      "Inertia.visit",
+      "Inertia.get",
+      "Inertia.post",
+      "$inertia",
+      "createInertiaApp"
+    ]
+  },
+
+  "data_access_boundaries": {
+    "allowed": {
+      "database": "tenant_database_only",
+      "scopes": [
+        "own_profile",
+        "tenant_elections",
+        "own_payments",
+        "tenant_forum_posts"
+      ],
+      "operations": [
+        "READ own data",
+        "UPDATE own profile",
+        "CREATE own posts",
+        "VOTE in elections"
+      ]
+    },
+    "prohibited": {
+      "database": "landlord_database",
+      "scopes": [
+        "other_tenants_data",
+        "platform_users",
+        "all_tenants",
+        "system_configuration"
+      ],
+      "operations": [
+        "CREATE tenants",
+        "DELETE tenants",
+        "UPDATE other users",
+        "ACCESS landlord data"
+      ]
+    }
+  },
+
+  "security_requirements": {
+    "authentication": {
+      "required_for": "all routes except public routes",
+      "token_storage": "Capacitor Preferences (mobile) or localStorage (web)",
+      "token_refresh": "automatic on 401 response"
+    },
+    "authorization": {
+      "tenant_isolation": "strict - no cross-tenant access",
+      "header_required": "X-Tenant-Slug must be present in all API calls",
+      "role_based": "member, admin (tenant-level only)"
+    },
+    "data_protection": {
+      "sensitive_data": "never log tokens or passwords",
+      "secure_storage": "use Capacitor Preferences for mobile",
+      "https_only": "production must use HTTPS"
+    }
+  },
+
+  "validation_rules": {
+    "route_validation": {
+      "check": "route path must be in allowed_routes",
+      "action": "redirect to / if accessing prohibited route",
+      "log": "warn if attempting prohibited route access"
+    },
+    "api_validation": {
+      "check": "API endpoint must be in allowed_api_calls",
+      "action": "throw error if accessing prohibited API",
+      "log": "error with stack trace for debugging"
+    },
+    "technology_validation": {
+      "check": "imports must be in allowed_imports",
+      "action": "build error if using prohibited import",
+      "log": "error during build process"
+    }
+  },
+
+  "monitoring": {
+    "track_api_calls": true,
+    "track_route_navigation": true,
+    "track_errors": true,
+    "send_to": "console (dev) or monitoring service (prod)",
+    "include_context": ["tenant_slug", "user_id", "timestamp", "route"]
+  }
+}
