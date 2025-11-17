@@ -1,75 +1,367 @@
-/* Global Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   TAILWIND LAYERS - Custom Components and Utilities
+   =================================================================== */
+
+@layer base {
+  /* Global Reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    @apply w-full h-full m-0 p-0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer components {
+  /* App Container - Main layout with gradient background */
+  .app-container {
+    @apply min-h-screen bg-gradient-to-br from-primary-500 to-secondary-500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      sans-serif;
+  }
+
+  /* App Header - Glassmorphism style */
+  .app-header {
+    @apply glass text-white p-4 flex justify-between items-center border-b border-white/20 shadow-md;
+  }
+
+  .app-header h1 {
+    @apply m-0 text-2xl font-bold tracking-wide;
+  }
+
+  /* Auth Status Section */
+  .auth-status {
+    @apply flex items-center gap-4 text-base;
+  }
+
+  /* Logout Button - Pill style with glassmorphism */
+  .logout-btn {
+    @apply glass-dark px-4 py-2 rounded-full cursor-pointer text-sm transition-all duration-300 ease-in-out hover:bg-white/30 active:scale-95 tap-highlight-transparent;
+  }
+
+  /* App Main Content */
+  .app-main {
+    @apply p-0;
+  }
+
+  /* Card Component */
+  .card {
+    @apply glass rounded-2xl p-6 shadow-lg;
+  }
+
+  .card-dark {
+    @apply glass-dark rounded-2xl p-6 shadow-lg;
+  }
+
+  /* Button Primary */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 ease-in-out active:scale-95 shadow-lg tap-highlight-transparent;
+  }
+
+  /* Button Secondary */
+  .btn-secondary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 ease-in-out active:scale-95 shadow-lg tap-highlight-transparent;
+  }
+
+  /* Button Outline */
+  .btn-outline {
+    @apply border-2 border-white/30 hover:border-white/50 text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 ease-in-out active:scale-95 tap-highlight-transparent;
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply glass w-full px-4 py-3 rounded-xl text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all duration-200;
+  }
+
+  /* Form Group */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-white font-medium mb-2 text-sm;
+  }
+
+  /* Loading Spinner */
+  .spinner {
+    @apply inline-block w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin;
+  }
+
+  /* Error Message */
+  .error-message {
+    @apply text-red-300 text-sm mt-2 animate-fade-in;
+  }
+
+  /* Success Message */
+  .success-message {
+    @apply text-green-300 text-sm mt-2 animate-fade-in;
+  }
+
+  /* ============================================
+     NX WELCOME / UI SYSTEM COMPONENT CLASSES
+     ============================================ */
+
+  /* Hero Button */
+  .btn-hero {
+    @apply bg-white text-ui-text rounded-xl inline-block mt-6 px-8 py-4 no-underline font-medium transition-all duration-300 hover:shadow-lg active:scale-95;
+  }
+
+  /* List Item Link (Navigation) */
+  .list-item-link {
+    @apply flex items-center rounded-xl mt-4 px-4 py-3 w-full transition-all duration-150 hover:bg-ui-accent-hover hover:text-white tap-highlight-transparent;
+  }
+
+  .list-item-link svg:first-child {
+    @apply mr-4 h-6 w-6 transition-all duration-150;
+  }
+
+  .list-item-link > span {
+    @apply flex-grow font-normal transition-all;
+  }
+
+  .list-item-link > span > span {
+    @apply text-ui-text-light block text-xs font-light leading-4 transition-all;
+  }
+
+  .list-item-link:hover > span > span {
+    @apply text-ui-hover-bg;
+  }
+
+  .list-item-link svg:last-child {
+    @apply h-4 w-4 transition-all duration-150;
+  }
+
+  .list-item-link:hover svg:last-child {
+    @apply translate-x-1;
+  }
+
+  /* Button Pill (Large Button with Icon) */
+  .button-pill {
+    @apply flex items-center py-6 px-8 mb-8 transition-all duration-300 rounded-3xl tap-highlight-transparent;
+  }
+
+  .button-pill svg {
+    @apply w-12 flex-shrink-0 transition-all duration-150;
+  }
+
+  .button-pill > span {
+    @apply text-lg font-normal leading-7 tracking-tight px-4;
+  }
+
+  .button-pill span span {
+    @apply block text-sm font-light leading-5;
+  }
+
+  .button-pill:hover {
+    @apply text-white;
+  }
+
+  .button-pill:hover svg {
+    @apply text-white;
+  }
+
+  /* Brand Specific Button Pills */
+  .button-pill.nx-console:hover {
+    @apply bg-nx-console;
+  }
+
+  .button-pill.nx-console svg {
+    @apply text-nx-console;
+  }
+
+  .button-pill.jetbrains:hover {
+    @apply bg-jetbrains;
+  }
+
+  .button-pill.jetbrains svg {
+    @apply text-jetbrains;
+  }
+
+  .button-pill.github:hover {
+    @apply bg-github;
+  }
+
+  .button-pill.github svg {
+    @apply text-github;
+  }
+
+  /* Code Block */
+  .code-block {
+    @apply bg-ui-code-bg text-ui-code-text rounded px-3 py-2 overflow-auto font-mono text-sm;
+  }
+
+  /* Details/Summary (Collapsible) */
+  summary {
+    @apply flex items-center rounded-lg py-2 px-2 font-normal cursor-pointer transition-all duration-150 hover:bg-ui-hover-bg;
+  }
+
+  summary svg {
+    @apply h-6 w-6 mr-4;
+  }
+
+  /* Card with Shadow (Learning Materials, Commands, etc.) */
+  .card-shadow-ui {
+    @apply shadow-[0_0_#0000,0_0_#0000,0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-2px_rgba(0,0,0,0.05)] rounded-3xl;
+  }
 }
 
-.app-container {
-  min-height: 100vh;
-  /* Background gradient */
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  /* Default font stack */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@layer utilities {
+  /* Mobile Safe Area Utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Combined Safe Areas */
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-y {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile Touch Utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Prevent Pull-to-Refresh on Mobile */
+  .no-overscroll {
+    overscroll-behavior: none;
+  }
+
+  /* Hide Scrollbar but Keep Functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+  }
+
+  /* Custom Gradient Backgrounds */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary-500 to-primary-700;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-br from-secondary-500 to-secondary-700;
+  }
+
+  .gradient-purple-blue {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+
+  /* PublicDigit Brand Gradient - Digital Democracy */
+  .gradient-brand {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+
+  /* Text Gradient */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-secondary-400 to-secondary-600 bg-clip-text text-transparent;
+  }
+
+  /* Shadow Utilities for Mobile */
+  .shadow-mobile {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-mobile-lg {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
 }
 
-.app-header {
-  /* Semi-transparent background with blur effect (Glassmorphism) */
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* ===================================================================
+   MOBILE CAPACITOR SPECIFIC STYLES
+   =================================================================== */
+
+/* Status Bar Safe Area */
+.status-bar-safe {
+  padding-top: env(safe-area-inset-top);
 }
 
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* Bottom Navigation Safe Area */
+.bottom-nav-safe {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.auth-status {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.95rem;
+/* Android Specific Overrides */
+.md {
+  /* Material Design - Android */
 }
 
-.logout-btn {
-  /* Button styling */
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px; /* Fully rounded pill shape */
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s ease, transform 0.1s ease;
+/* iOS Specific Overrides */
+.ios {
+  /* iOS Specific styles */
 }
 
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+/* ===================================================================
+   ANIMATION & TRANSITIONS
+   =================================================================== */
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+select,
+textarea {
+  @apply transition-all duration-200 ease-in-out;
 }
 
-.logout-btn:active {
-  transform: scale(0.98);
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.app-main {
-  padding: 0;
-}
+/* ===================================================================
+   RESPONSIVE BREAKPOINTS PREVIEW
+   =================================================================== */
+/*
+  xs: 360px  - Small phones (portrait)
+  sm: 480px  - Standard phones (portrait)
+  md: 768px  - Tablets (portrait)
+  lg: 1024px - Tablets (landscape) / Small desktop
+  xl: 1280px - Desktop
+
+  Usage:
+  @apply xs:text-sm sm:text-base md:text-lg lg:text-xl
+*/

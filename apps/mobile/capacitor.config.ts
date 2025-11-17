@@ -21,13 +21,13 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1500,
       launchAutoHide: true,
-      backgroundColor: '#667EEA',
+      backgroundColor: '#2563eb', // PublicDigit Primary Blue
       showSpinner: false
     },
-    
+
     StatusBar: {
       style: 'LIGHT', // or 'DARK'
-      backgroundColor: '#667EEA', // Match your app theme
+      backgroundColor: '#2563eb', // PublicDigit Primary Blue - Trust & Security
       overlaysWebView: false, // Don't overlay - this is important!
       translucent: false // Opaque status bar
     }

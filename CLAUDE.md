@@ -1318,3 +1318,5 @@ For questions or issues:
 **Last Updated**: 2025-01-14
 **Laravel Version**: 12.35.1
 **Status**: Multi-tenancy fix complete ✅, Mobile app development in progress 🚧
+- The Laravel backend is using Tailwind CSS v4.1.1 with @tailwindcss/vite plugin
+- The Laravel backend is using Tailwind CSS v4.1.1 with @tailwindcss/vite plugin

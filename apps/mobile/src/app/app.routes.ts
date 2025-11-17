@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guards'; // Import the functional 
 import { architectureGuard, blockAdminGuard } from './core/guards/architecture.guard';
 import { LoginComponent } from './auth/login/login.component';
 import { LandingComponent } from './landing/landing.component';
+import { TailwindTestComponent } from './tailwind-test/tailwind-test.component';
 
 export const routes: Routes = [
   // Landing Page (Public)
@@ -10,6 +11,9 @@ export const routes: Routes = [
 
   // Authentication Routes (Public)
   { path: 'login', component: LoginComponent },
+
+  // Tailwind CSS Verification Page (Public - Development Only)
+  { path: 'tailwind-test', component: TailwindTestComponent },
 
   // Protected Routes (requires authentication)
   {
