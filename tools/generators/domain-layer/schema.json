@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "DomainLayer",
+  "title": "Create Domain Layer Structure",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the domain entity",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the name of the domain entity?"
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of domain artifact",
+      "enum": ["entity", "value-object", "repository", "service", "event"],
+      "default": "entity",
+      "x-prompt": {
+        "message": "What type of domain artifact do you want to create?",
+        "type": "list",
+        "items": [
+          { "value": "entity", "label": "Entity - Core business object with identity" },
+          { "value": "value-object", "label": "Value Object - Immutable value without identity" },
+          { "value": "repository", "label": "Repository - Data access interface" },
+          { "value": "service", "label": "Service - Domain business logic" },
+          { "value": "event", "label": "Event - Domain event" }
+        ]
+      }
+    },
+    "context": {
+      "type": "string",
+      "description": "Bounded context (subdirectory in domain layer)",
+      "default": "shared",
+      "x-prompt": "What bounded context does this belong to? (e.g., geo-location, organization)"
+    }
+  },
+  "required": ["name", "type"]
+}

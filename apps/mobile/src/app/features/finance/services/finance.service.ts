@@ -355,7 +355,7 @@ export class FinanceService {
    * @param currency - Currency code (default: USD)
    * @returns Formatted string
    */
-  formatCurrency(amount: number, currency: string = 'USD'): string {
+  formatCurrency(amount: number, currency = 'USD'): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency

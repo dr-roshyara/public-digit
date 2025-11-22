@@ -26,7 +26,22 @@
     "paths": {
       "@public-digit/shared-types": ["libs/shared/types/src/index.ts"],
       // Keep this if you use both aliases, but focus on the one used in the service file.
-      "@publicdigit/shared-types": ["shared-types/src/index.ts"] 
+      "@publicdigit/shared-types": ["shared-types/src/index.ts"],
+
+      // DDD Architecture Path Mapping (Simplified)
+      "@domain/*": ["apps/mobile/src/app/domain/*"],
+      "@application/*": ["apps/mobile/src/app/application/*"],
+      "@infrastructure/*": ["apps/mobile/src/app/infrastructure/*"],
+      "@presentation/*": ["apps/mobile/src/app/presentation/*"],
+      "@core/*": ["apps/mobile/src/app/core/*"],
+      "@features/*": ["apps/mobile/src/app/features/*"],
+      "@shared/*": ["apps/mobile/src/app/shared/*"],
+
+      // Assets path mapping for i18n
+      "@assets/*": ["apps/mobile/src/assets/*"],
+
+      // Geo-location package mapping
+      "@public-digit-platform/geo-location": ["packages/geo-location/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "dist"]

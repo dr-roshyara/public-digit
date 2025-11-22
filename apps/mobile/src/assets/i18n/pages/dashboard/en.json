@@ -1,0 +1,37 @@
+{
+  "header": {
+    "welcome": "Welcome back!",
+    "userName": "{{name}}",
+    "userEmail": "{{email}}",
+    "logout": "Logout"
+  },
+  "stats": {
+    "sectionTitle": "Quick Stats",
+    "activeElections": "Active Elections",
+    "myVotes": "Votes Cast",
+    "upcomingElections": "Upcoming"
+  },
+  "navigation": {
+    "sectionTitle": "Quick Actions",
+    "elections": {
+      "title": "Elections",
+      "description": "View and participate in elections"
+    },
+    "profile": {
+      "title": "My Profile",
+      "description": "View and edit your profile"
+    },
+    "results": {
+      "title": "Results",
+      "description": "View election results"
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your preferences"
+    }
+  },
+  "footer": {
+    "platform": "PublicDigit Election Platform",
+    "version": "v1.0.0-dev"
+  }
+}

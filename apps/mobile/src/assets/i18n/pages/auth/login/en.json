@@ -1,0 +1,28 @@
+{
+  "title": "Login to Your Account",
+  "subtitle": "Access your organization's election platform",
+  "form": {
+    "email": {
+      "label": "Email Address",
+      "placeholder": "Enter your email"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Enter your password"
+    },
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Login",
+    "loading": "Logging in..."
+  },
+  "errors": {
+    "invalidCredentials": "Invalid email or password",
+    "networkError": "Network error. Please try again.",
+    "requiredField": "This field is required"
+  },
+  "links": {
+    "noAccount": "Don't have an account?",
+    "register": "Register here",
+    "backToHome": "Back to home"
+  }
+}

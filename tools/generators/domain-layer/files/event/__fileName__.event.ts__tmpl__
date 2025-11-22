@@ -1,0 +1,69 @@
+/**
+ * <%= className %>Event
+ * Domain Layer - <%= context %> Context
+ *
+ * Domain Events represent:
+ * - Something that happened in the domain
+ * - Immutable facts about the past
+ * - Communication between bounded contexts
+ * - Audit trail of domain changes
+ */
+
+/**
+ * <%= className %> Event Payload
+ */
+export interface <%= className %>EventPayload {
+  // Add event-specific data here
+  // Example:
+  // entityId: string;
+  // timestamp: Date;
+  // userId?: string;
+  // changes?: Record<string, any>;
+}
+
+/**
+ * <%= className %> Event
+ *
+ * This event is raised when <%= name %> occurs in the system.
+ */
+export class <%= className %>Event {
+  readonly eventName = '<%= className %>Event';
+  readonly occurredAt: Date;
+
+  constructor(
+    readonly payload: <%= className %>EventPayload,
+    readonly metadata?: EventMetadata
+  ) {
+    this.occurredAt = new Date();
+  }
+
+  /**
+   * Create event from payload
+   */
+  static create(payload: <%= className %>EventPayload, metadata?: EventMetadata): <%= className %>Event {
+    return new <%= className %>Event(payload, metadata);
+  }
+
+  /**
+   * Serialize event to JSON
+   */
+  toJSON() {
+    return {
+      eventName: this.eventName,
+      occurredAt: this.occurredAt.toISOString(),
+      payload: this.payload,
+      metadata: this.metadata,
+    };
+  }
+}
+
+/**
+ * Event Metadata
+ */
+export interface EventMetadata {
+  correlationId?: string;
+  causationId?: string;
+  userId?: string;
+  source?: string;
+  version?: number;
+}

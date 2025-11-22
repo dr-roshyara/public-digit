@@ -1,0 +1,37 @@
+{
+  "header": {
+    "welcome": "Willkommen zurück!",
+    "userName": "{{name}}",
+    "userEmail": "{{email}}",
+    "logout": "Abmelden"
+  },
+  "stats": {
+    "sectionTitle": "Schnellstatistiken",
+    "activeElections": "Aktive Wahlen",
+    "myVotes": "Abgegebene Stimmen",
+    "upcomingElections": "Bevorstehend"
+  },
+  "navigation": {
+    "sectionTitle": "Schnellaktionen",
+    "elections": {
+      "title": "Wahlen",
+      "description": "Wahlen anzeigen und teilnehmen"
+    },
+    "profile": {
+      "title": "Mein Profil",
+      "description": "Ihr Profil anzeigen und bearbeiten"
+    },
+    "results": {
+      "title": "Ergebnisse",
+      "description": "Wahlergebnisse anzeigen"
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "description": "Ihre Einstellungen verwalten"
+    }
+  },
+  "footer": {
+    "platform": "PublicDigit Wahlplattform",
+    "version": "v1.0.0-dev"
+  }
+}

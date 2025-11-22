@@ -1,9 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
-import { ApiService } from '../core/services/api.service';
-import { User } from '../core/models/auth.models';
+import { AuthService } from '@core/services/auth.service';
+import { ApiService } from '@core/services/api.service';
+import { User } from '@core/models/auth.models';
 
 @Component({
   selector: 'pd-home',

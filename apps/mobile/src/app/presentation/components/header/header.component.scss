@@ -1,0 +1,119 @@
+.mobile-header {
+  background: var(--color-primary);
+  color: white;
+  padding: var(--space-sm) 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .menu-toggle {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    position: relative;
+    cursor: pointer;
+    z-index: 1001;
+
+    span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background: white;
+      margin: 5px 0;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    height: 100vh;
+    background: var(--color-primary-dark);
+    padding: 80px var(--space-md) var(--space-md);
+    transition: right 0.3s ease;
+    overflow-y: auto;
+
+    &-open {
+      right: 0;
+    }
+
+    .nav-item {
+      display: block;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      padding: var(--space-sm);
+      border-radius: 8px;
+      margin-bottom: var(--space-xs);
+      transition: all 0.3s ease;
+      font-weight: 500;
+
+      &:hover, &.active {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .nav-actions {
+      margin-top: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  @media (min-width: 768px) {
+    .menu-toggle {
+      display: none;
+    }
+
+    .nav {
+      position: static;
+      width: auto;
+      height: auto;
+      background: transparent;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+
+      .nav-item {
+        display: inline-block;
+        padding: var(--space-xs) var(--space-sm);
+        margin-bottom: 0;
+      }
+
+      .nav-actions {
+        margin-top: 0;
+        flex-direction: row;
+        gap: var(--space-sm);
+
+        .btn {
+          width: auto;
+        }
+      }
+    }
+  }
+}

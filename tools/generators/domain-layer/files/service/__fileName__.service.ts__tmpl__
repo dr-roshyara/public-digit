@@ -1,0 +1,67 @@
+/**
+ * <%= className %>Service
+ * Domain Layer - <%= context %> Context
+ *
+ * Domain Services contain:
+ * - Business logic that doesn't naturally fit in entities or value objects
+ * - Operations involving multiple domain objects
+ * - Stateless operations
+ * - Pure domain logic (no infrastructure dependencies)
+ */
+
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class <%= className %>Service {
+  /**
+   * Domain service for <%= name %> operations
+   */
+  constructor() {
+    // Domain services should not depend on infrastructure
+    // They should only use domain entities, value objects, and other domain services
+  }
+
+  /**
+   * Example domain operation
+   * @param input - Input parameters
+   * @returns Result of the operation
+   */
+  performOperation(input: any): any {
+    // Implement your domain logic here
+    // This should be pure business logic without infrastructure concerns
+
+    // Example validation
+    this.validate(input);
+
+    // Example business rule
+    return this.applyBusinessRule(input);
+  }
+
+  /**
+   * Validate domain rules
+   * @param input - Input to validate
+   */
+  private validate(input: any): void {
+    if (!input) {
+      throw new Error('Input cannot be null');
+    }
+
+    // Add your validation logic here
+  }
+
+  /**
+   * Apply business rules
+   * @param input - Input for business rule
+   * @returns Result after applying business rule
+   */
+  private applyBusinessRule(input: any): any {
+    // Implement your business rules here
+    return input;
+  }
+
+  // Add more domain service methods as needed
+  // Examples:
+  // public calculateTotal(items: Item[]): number { }
+  // public validateBusinessRule(entity: Entity): boolean { }
+  // public transformData(data: any): any { }
+}

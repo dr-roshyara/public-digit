@@ -1,0 +1,63 @@
+/**
+ * <%= className %> Value Object
+ * Domain Layer - <%= context %> Context
+ *
+ * Value Objects have:
+ * - No identity
+ * - Immutable state
+ * - Value-based equality
+ * - Domain validation
+ */
+
+export class <%= className %> {
+  private readonly _value: string; // Change type as needed
+
+  private constructor(value: string) {
+    this._value = value;
+    this.validate();
+  }
+
+  // Getter
+  get value(): string {
+    return this._value;
+  }
+
+  // Domain validation
+  private validate(): void {
+    if (!this._value) {
+      throw new Error('<%= className %> cannot be empty');
+    }
+
+    // Add your validation rules here
+    // Example:
+    // if (this._value.length < 3) {
+    //   throw new Error('<%= className %> must be at least 3 characters');
+    // }
+  }
+
+  // Static factory method
+  static fromString(value: string): <%= className %> {
+    return new <%= className %>(value);
+  }
+
+  // Alternative factory methods
+  // Example:
+  // static fromNumber(value: number): <%= className %> {
+  //   return new <%= className %>(value.toString());
+  // }
+
+  // Equality comparison based on value
+  equals(other: <%= className %>): boolean {
+    return this._value === other._value;
+  }
+
+  // String representation
+  toString(): string {
+    return this._value;
+  }
+
+  // Serialization
+  toJSON(): string {
+    return this._value;
+  }
+}

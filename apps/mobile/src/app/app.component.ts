@@ -2,6 +2,12 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
+/**
+ * Root Application Component
+ *
+ * NOTE: Locale detection is now handled by AppInitService (APP_INITIALIZER)
+ * No need for component-level initialization anymore.
+ */
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -16,4 +22,6 @@ import { RouterOutlet } from '@angular/router';
   `],
   encapsulation: ViewEncapsulation.None,
 })
-export class AppComponent {}
+export class AppComponent {
+  // Locale detection now happens in AppInitService before component initialization
+}

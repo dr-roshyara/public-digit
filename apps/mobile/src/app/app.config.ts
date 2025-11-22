@@ -12,11 +12,22 @@ import { ArchitectureService } from './core/services/architecture.service';
 import { DomainService } from './core/services/domain.service';
 import { AppInitService } from './core/services/app-init.service';
 
+// DDD Architecture Services
+import { OrganizationFacade } from '@application/organization.facade';
+import { OrganizationRepository } from '@domain/organization/organization.repository';
+import { OrganizationHttpRepository } from '@infrastructure/repositories/organization-http.repository';
+
 // FIX: Renamed import from 'appRoutes' to 'routes' to match the actual export in './app.routes'
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { apiHeadersInterceptor } from './core/interceptors/api-headers.interceptor';
 import { tenantInterceptor } from './core/interceptors/tenant.interceptor';
+
+// Geo-location DDD services (our application)
+import { GeoLocationRepository } from '@domain/geo-location/repositories/geo-location.repository';
+import { GeoLocationHttpRepository } from '@infrastructure/repositories/geo-location-http.repository';
+import { AutoLocaleDetectionService } from '@application/services/auto-locale-detection.service';
+import { LocaleDetectionFacade } from '@presentation/facades/locale-detection.facade';
 
 /**
  * Initialize application on startup
@@ -49,6 +60,15 @@ export const appConfig: ApplicationConfig = {
     AuthService,
     DomainService,
     AppInitService,
+
+    // DDD Architecture Services
+    OrganizationFacade,
+    { provide: OrganizationRepository, useClass: OrganizationHttpRepository },
+
+    // Geo-location DDD Services (our application layers)
+    { provide: GeoLocationRepository, useClass: GeoLocationHttpRepository }, // Infrastructure → Domain
+    AutoLocaleDetectionService,     // Application service
+    LocaleDetectionFacade,          // Presentation facade
 
     // Initialize application on startup (runs before Angular bootstraps)
     {

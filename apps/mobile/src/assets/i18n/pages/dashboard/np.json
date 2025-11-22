@@ -1,0 +1,37 @@
+{
+  "header": {
+    "welcome": "फिर्ता स्वागत छ!",
+    "userName": "{{name}}",
+    "userEmail": "{{email}}",
+    "logout": "लगआउट"
+  },
+  "stats": {
+    "sectionTitle": "त्वरित तथ्याङ्क",
+    "activeElections": "सक्रिय निर्वाचन",
+    "myVotes": "दिइएका मतहरू",
+    "upcomingElections": "आउँदै"
+  },
+  "navigation": {
+    "sectionTitle": "त्वरित कार्यहरू",
+    "elections": {
+      "title": "निर्वाचन",
+      "description": "निर्वाचनहरू हेर्नुहोस् र भाग लिनुहोस्"
+    },
+    "profile": {
+      "title": "मेरो प्रोफाइल",
+      "description": "आफ्नो प्रोफाइल हेर्नुहोस् र सम्पादन गर्नुहोस्"
+    },
+    "results": {
+      "title": "नतिजाहरू",
+      "description": "निर्वाचन नतिजाहरू हेर्नुहोस्"
+    },
+    "settings": {
+      "title": "सेटिङहरू",
+      "description": "आफ्ना प्राथमिकताहरू व्यवस्थापन गर्नुहोस्"
+    }
+  },
+  "footer": {
+    "platform": "PublicDigit निर्वाचन प्लेटफर्म",
+    "version": "v1.0.0-dev"
+  }
+}

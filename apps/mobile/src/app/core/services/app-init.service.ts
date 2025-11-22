@@ -5,6 +5,7 @@ import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import { DomainService, DomainType } from './domain.service';
 import { ArchitectureService } from './architecture.service';
 import { environment } from '../../../environments/environment';
+import { AutoLocaleDetectionService } from '@application/services/auto-locale-detection.service';
 
 /**
  * Application Initialization Configuration
@@ -16,6 +17,8 @@ export interface AppInitConfig {
   tenantSlug?: string;
   architectureBoundariesLoaded: boolean;
   authenticationInitialized: boolean;
+  localeDetectionInitialized: boolean;  // New: locale detection status
+  detectedLocale?: string;               // New: detected locale
   tenantContextSet: boolean;
   initialized: boolean;
   error?: string;
@@ -47,6 +50,7 @@ export interface InitializationResult {
  * 2. Load architecture boundaries from backend
  * 3. Validate current domain against boundaries
  * 4. Initialize authentication state
+ * 4.5. Initialize locale detection (geo-location + browser language)
  * 5. Set tenant context if on tenant domain
  * 6. Configure routing based on domain type
  *
@@ -70,11 +74,13 @@ export class AppInitService {
   private http = inject(HttpClient);
   private domainService = inject(DomainService);
   private architectureService = inject(ArchitectureService);
+  private autoLocaleService = inject(AutoLocaleDetectionService);
 
   private initConfig: AppInitConfig = {
     domainType: 'unknown',
     architectureBoundariesLoaded: false,
     authenticationInitialized: false,
+    localeDetectionInitialized: false,
     tenantContextSet: false,
     initialized: false,
   };
@@ -119,6 +125,7 @@ export class AppInitService {
       switchMap(() => this.loadArchitectureBoundaries()),
       switchMap(() => this.validateDomainBoundaries()),
       switchMap(() => this.initializeAuthentication()),
+      switchMap(() => this.initializeLocaleDetection()),      // New: locale detection
       switchMap(() => this.setTenantContext()),
       switchMap(() => this.finalizeInitialization()),
       catchError(error => {
@@ -308,6 +315,42 @@ export class AppInitService {
   }
 
   /**
+   * Step 4.5: Initialize Locale Detection
+   *
+   * Automatically detect user's locale based on geo-location, browser language, and user history.
+   * This should run after authentication (to access user preferences if any)
+   * and before loading tenant context (which may have localized content).
+   */
+  private initializeLocaleDetection(): Observable<void> {
+    console.log('[AppInitService] Step 4.5: Initializing locale detection...');
+
+    return from(
+      this.autoLocaleService.initialize({
+        respectUserPreference: true,
+        forceRefresh: false
+      })
+    ).pipe(
+      tap((result) => {
+        this.initConfig.localeDetectionInitialized = true;
+        this.initConfig.detectedLocale = result.locale;
+        console.log('[AppInitService] Locale detection completed:', {
+          locale: result.locale,
+          confidence: result.confidence,
+          source: result.source
+        });
+      }),
+      map(() => void 0),
+      catchError(error => {
+        console.warn('[AppInitService] Locale detection failed, using fallback:', error);
+        this.initConfig.localeDetectionInitialized = false;
+        this.initConfig.detectedLocale = 'en'; // Fallback to English
+        // Non-blocking: Allow app to continue
+        return of(void 0);
+      })
+    );
+  }
+
+  /**
    * Step 5: Set Tenant Context
    *
    * If on a tenant domain, sets the tenant context for the application.
@@ -470,6 +513,7 @@ export class AppInitService {
       domainType: 'unknown',
       architectureBoundariesLoaded: false,
       authenticationInitialized: false,
+      localeDetectionInitialized: false,
       tenantContextSet: false,
       initialized: false,
     };

@@ -197,7 +197,7 @@ export class AuthService {
    * @param refresh - Force refresh from API (bypass cache)
    * @returns Observable<Tenant[]> - List of active tenants user has access to
    */
-  loadUserTenants(refresh: boolean = false): Observable<Tenant[]> {
+  loadUserTenants(refresh = false): Observable<Tenant[]> {
     // Return cached tenants if available and not forcing refresh
     if (!refresh && this.userTenantsSubject.value.length > 0) {
       return of(this.userTenantsSubject.value);

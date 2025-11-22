@@ -9,6 +9,7 @@
     "build": {
       "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["validate-architecture"],
       "options": {
         "outputPath": "dist/apps/mobile",
         "index": "apps/mobile/src/index.html",
@@ -152,6 +153,15 @@
           "apps/mobile/**/*.scss"
         ]
       }
+    },
+    "validate-architecture": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "node tools/scripts/validate-architecture.js",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Validate DDD architecture boundaries and layer separation"
     },
     "test": {
       "executor": "@nx/jest:jest",

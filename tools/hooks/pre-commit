@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+echo "🔍 Running pre-commit checks..."
+
+# Architecture validation
+echo "\n📐 Validating architecture boundaries..."
+node tools/scripts/validate-architecture.js
+if [ $? -ne 0 ]; then
+  echo "❌ Architecture validation failed!"
+  echo "   Please fix architecture violations before committing."
+  exit 1
+fi
+
+# Linting (only for mobile app)
+echo "\n📋 Running linting on mobile app..."
+npx nx lint mobile --quiet
+if [ $? -ne 0 ]; then
+  echo "❌ Linting failed!"
+  echo "   Run 'nx lint mobile' to see errors."
+  echo "   Run 'nx lint mobile --fix' to auto-fix some issues."
+  exit 1
+fi
+
+echo "\n✅ All pre-commit checks passed!"
+echo "   Proceeding with commit..."

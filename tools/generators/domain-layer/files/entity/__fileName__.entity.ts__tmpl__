@@ -1,0 +1,83 @@
+/**
+ * <%= className %> Entity
+ * Domain Layer - <%= context %> Context
+ *
+ * Entities have:
+ * - Unique identity
+ * - Mutable state
+ * - Business logic
+ * - Domain validation
+ */
+
+export interface <%= className %>Props {
+  id: string;
+  // Add entity properties here
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class <%= className %> {
+  private readonly _id: string;
+  private _createdAt: Date;
+  private _updatedAt: Date;
+
+  constructor(private readonly props: <%= className %>Props) {
+    this._id = props.id;
+    this._createdAt = props.createdAt || new Date();
+    this._updatedAt = props.updatedAt || new Date();
+
+    this.validate();
+  }
+
+  // Getters
+  get id(): string {
+    return this._id;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
+  }
+
+  // Domain validation
+  private validate(): void {
+    if (!this.props.id) {
+      throw new Error('<%= className %> must have an ID');
+    }
+
+    // Add your validation rules here
+  }
+
+  // Business logic methods
+  // Example:
+  // public doSomething(): void {
+  //   // Business logic here
+  //   this._updatedAt = new Date();
+  // }
+
+  // Equality comparison based on ID
+  equals(other: <%= className %>): boolean {
+    return this._id === other._id;
+  }
+
+  // Serialization
+  toJSON(): <%= className %>Props {
+    return {
+      id: this._id,
+      createdAt: this._createdAt,
+      updatedAt: this._updatedAt,
+      ...this.props,
+    };
+  }
+
+  // Factory method
+  static create(props: Omit<<%= className %>Props, 'id'>): <%= className %> {
+    return new <%= className %>({
+      ...props,
+      id: crypto.randomUUID(),
+    });
+  }
+}

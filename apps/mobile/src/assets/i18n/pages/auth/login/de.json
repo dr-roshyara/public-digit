@@ -1,0 +1,28 @@
+{
+  "title": "Bei Ihrem Konto anmelden",
+  "subtitle": "Greifen Sie auf die Wahlplattform Ihrer Organisation zu",
+  "form": {
+    "email": {
+      "label": "E-Mail-Adresse",
+      "placeholder": "Geben Sie Ihre E-Mail ein"
+    },
+    "password": {
+      "label": "Passwort",
+      "placeholder": "Geben Sie Ihr Passwort ein"
+    },
+    "rememberMe": "Angemeldet bleiben",
+    "forgotPassword": "Passwort vergessen?",
+    "submit": "Anmelden",
+    "loading": "Anmeldung läuft..."
+  },
+  "errors": {
+    "invalidCredentials": "Ungültige E-Mail oder Passwort",
+    "networkError": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
+    "requiredField": "Dieses Feld ist erforderlich"
+  },
+  "links": {
+    "noAccount": "Noch kein Konto?",
+    "register": "Hier registrieren",
+    "backToHome": "Zurück zur Startseite"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false
+  },
+  "files": [
+    "src/services/geo-translation-bridge.service.ts",
+    "src/services/multi-layer-cache.service.ts",
+    "src/domain/value-objects/locale-preference.vo.ts",
+    "src/domain/value-objects/country-code.vo.ts",
+    "src/shared/errors/domain.error.ts",
+    "src/index.ts"
+  ]
+}

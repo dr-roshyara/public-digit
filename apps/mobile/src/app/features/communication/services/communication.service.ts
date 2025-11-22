@@ -77,7 +77,7 @@ export class CommunicationService {
    * @param perPage - Items per page (default: 20)
    * @returns Observable<ThreadListItem[]>
    */
-  getThreads(filter?: ThreadFilter, page: number = 1, perPage: number = 20): Observable<ThreadListItem[]> {
+  getThreads(filter?: ThreadFilter, page = 1, perPage = 20): Observable<ThreadListItem[]> {
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
 
@@ -169,7 +169,7 @@ export class CommunicationService {
    * @param perPage - Items per page (default: 20)
    * @returns Observable<ForumPost[]>
    */
-  getThreadPosts(threadId: number, page: number = 1, perPage: number = 20): Observable<ForumPost[]> {
+  getThreadPosts(threadId: number, page = 1, perPage = 20): Observable<ForumPost[]> {
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
 
@@ -389,7 +389,7 @@ export class CommunicationService {
    * @param perPage - Items per page
    * @returns Observable<ThreadListItem[]>
    */
-  search(query: string, page: number = 1, perPage: number = 20): Observable<ThreadListItem[]> {
+  search(query: string, page = 1, perPage = 20): Observable<ThreadListItem[]> {
     return this.getThreads({ search_query: query }, page, perPage);
   }
 

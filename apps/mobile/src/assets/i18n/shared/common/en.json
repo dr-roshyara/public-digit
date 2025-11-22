@@ -1,0 +1,52 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset"
+  },
+  "labels": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "description": "Description",
+    "status": "Status",
+    "date": "Date",
+    "time": "Time",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "success": "Success!",
+    "error": "Error!",
+    "warning": "Warning!",
+    "info": "Information",
+    "noData": "No data available",
+    "noResults": "No results found"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be at most {{max}} characters",
+    "passwordMismatch": "Passwords do not match"
+  }
+}

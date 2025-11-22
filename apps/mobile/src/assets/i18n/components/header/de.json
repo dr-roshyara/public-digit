@@ -1,0 +1,23 @@
+{
+  "brand": {
+    "name": "PublicDigit",
+    "tagline": "Demokratische Plattform für politische Organisationen"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "elections": "Wahlen",
+    "membership": "Mitgliedschaft",
+    "about": "Über uns",
+    "contact": "Kontakt"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "dashboard": "Dashboard"
+  },
+  "language": {
+    "switch": "Sprache wechseln",
+    "current": "Aktuelle Sprache: Deutsch"
+  }
+}

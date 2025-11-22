@@ -201,7 +201,7 @@ export class DomainService {
    * @param targetDomain - Target domain or tenant slug
    * @param path - Optional path to navigate to
    */
-  navigateToDomain(targetDomain: string, path: string = '/'): void {
+  navigateToDomain(targetDomain: string, path = '/'): void {
     let url: string;
 
     // Check if it's a full URL
@@ -240,7 +240,7 @@ export class DomainService {
    * @param path - Optional path
    * @returns Full URL string
    */
-  buildDomainUrl(domainType: DomainType, path: string = '/'): string {
+  buildDomainUrl(domainType: DomainType, path = '/'): string {
     const protocol = window.location.protocol;
     const baseDomain = this.getBaseDomain();
     let subdomain: string;
@@ -272,7 +272,7 @@ export class DomainService {
    * @param path - Optional path
    * @returns Full URL string
    */
-  buildTenantUrl(tenantSlug: string, path: string = '/'): string {
+  buildTenantUrl(tenantSlug: string, path = '/'): string {
     const protocol = window.location.protocol;
     const baseDomain = this.getBaseDomain();
     return `${protocol}//${tenantSlug}.${baseDomain}${path}`;

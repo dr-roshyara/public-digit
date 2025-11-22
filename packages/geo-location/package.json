@@ -1,0 +1,31 @@
+{
+  "name": "@public-digit-platform/geo-location",
+  "version": "1.0.0",
+  "description": "Shared geo-location facade for automatic country detection and language selection",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.minimal.json",
+    "build:full": "tsc",
+    "dev": "tsc -p tsconfig.minimal.json --watch",
+    "test": "jest"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "rxjs": "^7.8.0"
+  }
+}

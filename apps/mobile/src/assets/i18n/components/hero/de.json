@@ -1,0 +1,21 @@
+{
+  "title": "Sichere digitale Wahlen für politische Organisationen",
+  "subtitle": "Ermöglichen Sie Ihren Mitgliedern transparente, zugängliche und vertrauenswürdige Wahlsysteme, die für die moderne Demokratie entwickelt wurden.",
+  "features": {
+    "secure": "Militärische Sicherheit für jede Stimme",
+    "transparent": "Vollständig überprüfbare Wahlprozesse",
+    "accessible": "Von überall und mit jedem Gerät abstimmen",
+    "trustworthy": "Verifizierte Ergebnisse, auf die Sie sich verlassen können"
+  },
+  "cta": {
+    "primary": "Jetzt starten",
+    "secondary": "Mehr erfahren",
+    "demo": "Demo anfordern"
+  },
+  "stats": {
+    "organizations": "Vertrauen von 100+ Organisationen",
+    "elections": "10.000+ durchgeführte Wahlen",
+    "votes": "Millionen sicher abgegebener Stimmen",
+    "countries": "Aktiv in 15+ Ländern"
+  }
+}

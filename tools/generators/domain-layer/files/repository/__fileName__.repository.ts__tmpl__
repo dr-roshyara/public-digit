@@ -1,0 +1,65 @@
+/**
+ * <%= className %>Repository Interface
+ * Domain Layer - <%= context %> Context
+ *
+ * Repository Pattern:
+ * - Defines data access contract
+ * - Implemented in infrastructure layer
+ * - Domain doesn't depend on implementation details
+ * - Allows for easy testing with mocks
+ */
+
+import { InjectionToken } from '@angular/core';
+
+// Define the injection token for DI
+export const <%= propertyName.toUpperCase() %>_REPOSITORY = new InjectionToken<<%= className %>Repository>(
+  '<%= className %>Repository'
+);
+
+/**
+ * <%= className %> Repository Interface
+ *
+ * This interface defines the contract for <%= name %> data access.
+ * The actual implementation will be provided in the infrastructure layer.
+ */
+export interface <%= className %>Repository {
+  /**
+   * Find a <%= name %> by ID
+   * @param id - The <%= name %> ID
+   * @returns Promise resolving to the <%= name %> or null if not found
+   */
+  findById(id: string): Promise<any | null>; // Replace 'any' with your entity type
+
+  /**
+   * Find all <%= name %>s
+   * @returns Promise resolving to array of <%= name %>s
+   */
+  findAll(): Promise<any[]>; // Replace 'any' with your entity type
+
+  /**
+   * Save a <%= name %>
+   * @param entity - The <%= name %> to save
+   * @returns Promise resolving to the saved <%= name %>
+   */
+  save(entity: any): Promise<any>; // Replace 'any' with your entity type
+
+  /**
+   * Delete a <%= name %>
+   * @param id - The <%= name %> ID to delete
+   * @returns Promise resolving to true if deleted, false otherwise
+   */
+  delete(id: string): Promise<boolean>;
+
+  /**
+   * Check if a <%= name %> exists
+   * @param id - The <%= name %> ID
+   * @returns Promise resolving to true if exists, false otherwise
+   */
+  exists(id: string): Promise<boolean>;
+
+  // Add more repository methods as needed
+  // Examples:
+  // findByEmail(email: string): Promise<any | null>;
+  // findByStatus(status: string): Promise<any[]>;
+  // count(): Promise<number>;
+}

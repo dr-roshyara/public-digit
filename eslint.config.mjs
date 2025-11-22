@@ -19,7 +19,20 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          allow: [
+            '^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$',
+            // Allow DDD Architecture Path Aliases (Phase 1 - Architecture Guardrails)
+            '^@domain/.*$',
+            '^@application/.*$',
+            '^@infrastructure/.*$',
+            '^@presentation/.*$',
+            '^@core/.*$',
+            '^@features/.*$',
+            '^@shared/.*$',
+            '^@assets/.*$',
+            // Allow external packages
+            '^@public-digit-platform/.*$',
+          ],
           depConstraints: [
             {
               sourceTag: '*',

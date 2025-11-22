@@ -1,0 +1,52 @@
+{
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "submit": "Absenden",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Anzeigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "reset": "Zurücksetzen"
+  },
+  "labels": {
+    "name": "Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "city": "Stadt",
+    "country": "Land",
+    "description": "Beschreibung",
+    "status": "Status",
+    "date": "Datum",
+    "time": "Zeit",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am"
+  },
+  "messages": {
+    "loading": "Lädt...",
+    "saving": "Speichert...",
+    "deleting": "Löscht...",
+    "success": "Erfolg!",
+    "error": "Fehler!",
+    "warning": "Warnung!",
+    "info": "Information",
+    "noData": "Keine Daten verfügbar",
+    "noResults": "Keine Ergebnisse gefunden"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "minLength": "Muss mindestens {{min}} Zeichen lang sein",
+    "maxLength": "Darf höchstens {{max}} Zeichen lang sein",
+    "passwordMismatch": "Passwörter stimmen nicht überein"
+  }
+}

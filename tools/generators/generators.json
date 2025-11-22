@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "workspace-generators",
+  "version": "0.0.1",
+  "generators": {
+    "domain-layer": {
+      "factory": "./domain-layer/generator",
+      "schema": "./domain-layer/schema.json",
+      "description": "Generate DDD domain layer artifacts (entities, value objects, repositories, services, events)"
+    }
+  }
+}

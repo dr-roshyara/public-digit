@@ -1,0 +1,21 @@
+{
+  "title": "Secure Digital Elections for Political Organizations",
+  "subtitle": "Empower your members with transparent, accessible, and trustworthy voting systems built for modern democracy.",
+  "features": {
+    "secure": "Military-grade security for every vote",
+    "transparent": "Fully auditable election processes",
+    "accessible": "Vote from anywhere, on any device",
+    "trustworthy": "Verified results you can count on"
+  },
+  "cta": {
+    "primary": "Get Started Today",
+    "secondary": "Learn More",
+    "demo": "Request Demo"
+  },
+  "stats": {
+    "organizations": "Trusted by 100+ organizations",
+    "elections": "10,000+ elections conducted",
+    "votes": "Millions of votes cast securely",
+    "countries": "Active in 15+ countries"
+  }
+}
