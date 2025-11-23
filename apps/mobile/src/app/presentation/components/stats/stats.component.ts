@@ -13,7 +13,7 @@ export interface Stat {
  * Responsive grid layout
  */
 @Component({
-  selector: 'app-stats',
+  selector: 'pd-stats',
   standalone: true,
   imports: [CommonModule],
   template: `

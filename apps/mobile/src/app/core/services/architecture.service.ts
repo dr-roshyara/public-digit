@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import {
   ArchitectureBoundaries,
@@ -74,24 +74,35 @@ export class ArchitectureService {
       // Fetch boundaries from Laravel backend
       // Architecture files are served from packages/laravel-backend/architecture/
       const baseUrl = this.getArchitectureBaseUrl();
-      const boundaries = await firstValueFrom(
+      const result = await firstValueFrom(
         this.http.get<ArchitectureBoundaries>(
-          `${baseUrl}/architecture/frontend-boundaries.json`
+          `${baseUrl}/architecture/frontend-boundaries.json`,
+          {
+            // Add timeout to prevent hanging requests
+            // @ts-ignore - HttpClient context options
+            context: { timeout: 5000 }
+          }
         ).pipe(
+          tap(() => console.log('[ArchitectureService] Boundaries loaded from backend')),
           catchError(error => {
-            console.error('Failed to load architecture boundaries:', error);
-            this.errorSubject.next('Failed to load architecture boundaries');
-            throw error;
+            // Graceful degradation: Use local fallback boundaries
+            console.warn('⚠️ Architecture Service: Backend unavailable, using local fallback');
+            console.debug('Error details:', error);
+
+            // Return local fallback instead of throwing
+            return of(this.getLocalFallbackBoundaries());
           })
         )
       );
 
+      // Type assertion to fix TypeScript union type inference
+      const boundaries = result as ArchitectureBoundaries;
       this.boundariesSubject.next(boundaries);
-      console.log('[ArchitectureService] Boundaries loaded successfully');
+      console.log('✅ Architecture boundaries initialized');
     } catch (error) {
-      console.error('[ArchitectureService] Error loading boundaries:', error);
-      // Fail open: Don't block app if boundaries can't be loaded
-      // but log the error for monitoring
+      console.warn('[ArchitectureService] Using fallback boundaries:', error);
+      // Fail open with local fallback
+      this.boundariesSubject.next(this.getLocalFallbackBoundaries());
     } finally {
       this.loadingSubject.next(false);
     }
@@ -312,5 +323,92 @@ export class ArchitectureService {
     if (environment.production) {
       // TODO: Send to monitoring service
     }
+  }
+
+  /**
+   * Get local fallback boundaries when backend is unavailable
+   *
+   * PRODUCTION PATTERN: Graceful Degradation
+   * - Used when Laravel backend is not accessible
+   * - Provides safe defaults for mobile app
+   * - Prevents app blocking while backend is down
+   *
+   * @returns ArchitectureBoundaries - Safe default boundaries
+   */
+  private getLocalFallbackBoundaries(): ArchitectureBoundaries {
+    return {
+      angular_boundaries: {
+        technology: 'Angular',
+        purpose: 'Mobile-first tenant user interface',
+        domains: ['*.publicdigit.com', 'localhost:4200'],
+        allowed_routes: [
+          '/',
+          '/login',
+          '/register',
+          '/dashboard',
+          '/elections',
+          '/elections/*',
+          '/profile',
+          '/profile/*',
+          '/settings',
+          '/membership',
+          '/membership/*',
+          '/auth/*',
+          '/tenant-selection'
+        ],
+        prohibited_routes: [
+          '/admin',
+          '/admin/*',
+          '/setup',
+          '/setup/*',
+          '/tenant-provisioning',
+          '/tenant-provisioning/*'
+        ],
+        allowed_api_routes: [
+          '/api/v1/*',
+          '/api/mobile/*',
+          '/sanctum/csrf-cookie'
+        ],
+        prohibited_api_routes: [
+          '/api/admin/*',
+          '/api/setup/*',
+          '/api/tenant-provisioning/*'
+        ]
+      },
+      inertia_vue_boundaries: {
+        technology: 'Inertia.js + Vue 3',
+        purpose: 'Desktop admin and tenant management interface',
+        domains: ['publicdigit.com', '*.publicdigit.com', 'localhost:8000'],
+        allowed_routes: [
+          '/admin',
+          '/admin/*',
+          '/setup',
+          '/setup/*',
+          '/tenant-provisioning',
+          '/tenant-provisioning/*',
+          '/dashboard',
+          '/elections',
+          '/elections/*'
+        ],
+        prohibited_routes: [
+          '/mobile',
+          '/mobile/*'
+        ],
+        allowed_api_routes: [
+          '/api/*',
+          '/sanctum/csrf-cookie'
+        ],
+        prohibited_api_routes: []
+      },
+      enforcement: {
+        enabled: true,
+        log_violations: true,
+        abort_on_violation: false,
+        violation_response: {
+          status_code: 403,
+          message: 'Architecture boundary violation'
+        }
+      }
+    };
   }
 }

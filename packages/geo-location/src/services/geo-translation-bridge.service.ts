@@ -10,8 +10,9 @@
  * - Team Scalability through clear contracts
  */
 
+import { Injectable, Optional } from '@angular/core';
 import { BehaviorSubject, Observable, from, of, timer } from 'rxjs';
-import { map, catchError, tap, distinctUntilChanged, switchMap, retryWhen, delayWhen, timeout } from 'rxjs/operators';
+import { map, catchError, tap, distinctUntilChanged, switchMap, retryWhen, delayWhen, timeout, delay as rxDelay } from 'rxjs/operators';
 
 // TEMPORARILY DISABLED - Import commented out for minimal compilation
 // Will be re-enabled when UnifiedGeoLocationFacade dependencies are fixed
@@ -56,6 +57,7 @@ interface ConfidenceScore {
   };
 }
 
+@Injectable({ providedIn: 'root' })
 export class GeoTranslationBridgeService {
   private readonly _state = new BehaviorSubject<TranslationBridgeState>({
     currentLocale: 'en',
@@ -89,7 +91,7 @@ export class GeoTranslationBridgeService {
     averageDetectionTime: 0
   };
 
-  constructor(private readonly geoFacade: UnifiedGeoLocationFacade) {}
+  constructor(@Optional() private readonly geoFacade?: UnifiedGeoLocationFacade) {}
 
   // ======== PUBLIC API ========
 
@@ -133,6 +135,12 @@ export class GeoTranslationBridgeService {
       performanceMetrics: { detectionTimeMs: 0, cacheHit: false, fallbackUsed: false }
     });
 
+    // If geoFacade is not available, use fallback immediately
+    if (!this.geoFacade) {
+      console.log('🌍 GeoFacade not available, using browser-based detection');
+      return this.executeFallbackStrategy();
+    }
+
     return this.geoFacade.detectLocationAndLanguage().pipe(
       timeout(this.CIRCUIT_BREAKER_CONFIG.timeoutMs),
       retryWhen(errors => errors.pipe(
@@ -153,7 +161,7 @@ export class GeoTranslationBridgeService {
         const confidence = pref.getConfidence();
 
         // Check if user has explicitly chosen a language
-        if (this.geoFacade.hasUserExplicitLocale()) {
+        if (this.geoFacade && this.geoFacade.hasUserExplicitLocale()) {
           return this.applyUserExplicitLocale();
         }
 
@@ -196,7 +204,9 @@ export class GeoTranslationBridgeService {
       tap(success => {
         if (success) {
           // Store user's explicit choice with high confidence
-          this.geoFacade.setManualPreference('US', languageCode);
+          if (this.geoFacade) {
+            this.geoFacade.setManualPreference('US', languageCode);
+          }
 
           // Update user history for confidence calculation
           this.updateUserHistory(languageCode, 'explicit');
@@ -227,7 +237,9 @@ export class GeoTranslationBridgeService {
    * Clear user's explicit language preference and re-enable auto-detection
    */
   clearUserPreference(): Observable<string> {
-    this.geoFacade.clearUserPreference();
+    if (this.geoFacade) {
+      this.geoFacade.clearUserPreference();
+    }
     return this.initializeAutomaticLanguageDetection();
   }
 
@@ -235,6 +247,9 @@ export class GeoTranslationBridgeService {
    * Check if auto-detection should override current language
    */
   shouldAutoDetectOverride(): Observable<boolean> {
+    if (!this.geoFacade || !this.geoFacade.localePreference$) {
+      return of(false);
+    }
     return this.geoFacade.localePreference$.pipe(
       map(preference => {
         if (!preference) return false;
@@ -361,6 +376,23 @@ export class GeoTranslationBridgeService {
   // ======== CONFIDENCE CALCULATION ENGINE ========
 
   private calculateMultiFactorConfidence(): Observable<ConfidenceScore> {
+    if (!this.geoFacade || !this.geoFacade.localePreference$) {
+      // Fallback confidence based on browser language only
+      const browserScore = this.calculateBrowserLanguageConfidence();
+      const historyScore = this.calculateUserHistoryConfidence();
+      const overall = (browserScore * 0.7) + (historyScore * 0.3);
+
+      return of({
+        overall,
+        factors: {
+          geoLocation: { score: 0, weight: 0, details: { unavailable: true } },
+          browserLanguage: { score: browserScore, weight: 0.7, details: this.getBrowserConfidenceDetails() },
+          userHistory: { score: historyScore, weight: 0.3, details: this.getHistoryConfidenceDetails() },
+          networkSignal: { score: 0, weight: 0, details: { unavailable: true } }
+        }
+      });
+    }
+
     return this.geoFacade.localePreference$.pipe(
       map(preference => {
         const pref = asLocalePreference(preference);

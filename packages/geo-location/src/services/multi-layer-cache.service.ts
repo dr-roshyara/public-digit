@@ -15,6 +15,7 @@
  * - Memory Leak Prevention
  */
 
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { map, catchError, tap, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -34,6 +35,7 @@ interface CacheLayerMetrics {
   hitRate: number;
 }
 
+@Injectable({ providedIn: 'root' })
 export class MultiLayerCacheService {
   // L1: Memory Cache (In-Memory)
   private l1Cache = new Map<string, CacheEntry<any>>();

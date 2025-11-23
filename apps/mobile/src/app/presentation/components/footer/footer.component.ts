@@ -12,7 +12,7 @@ export interface FooterSection {
  * Mobile-optimized layout
  */
 @Component({
-  selector: 'app-footer',
+  selector: 'pd-footer',
   standalone: true,
   imports: [CommonModule],
   template: `

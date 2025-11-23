@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@presentation/pipes/translate.pipe';
 
 /**
  * Hero Component
@@ -7,21 +8,20 @@ import { CommonModule } from '@angular/common';
  * Responsive design with gradient background
  */
 @Component({
-  selector: 'app-hero',
+  selector: 'pd-hero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <section class="hero-section">
       <div class="container">
         <div class="hero-content">
-          <h1 class="hero-title">Building Trust in Democratic Institutions</h1>
+          <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
           <p class="hero-subtitle">
-            A secure platform for political parties and NGOs to engage members,
-            ensure transparency, and strengthen democratic processes worldwide.
+            {{ 'home.hero.subtitle' | translate }}
           </p>
           <div class="hero-actions">
-            <button class="btn btn-secondary hero-cta">Start Your Digital Transformation</button>
-            <button class="btn btn-outline">Learn More</button>
+            <button class="btn btn-secondary hero-cta">{{ 'home.hero.cta_primary' | translate }}</button>
+            <button class="btn btn-outline">{{ 'home.hero.cta_secondary' | translate }}</button>
           </div>
         </div>
 

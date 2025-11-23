@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "title": "Democratic Platform for Political Organizations",
+    "subtitle": "Secure, transparent, and accessible election management for political parties and organizations worldwide",
+    "cta_primary": "Get Started",
+    "cta_secondary": "Learn More"
+  },
+  "features": {
+    "title": "Why Choose Public Digit?",
+    "subtitle": "Comprehensive election management platform built for modern political organizations"
+  },
+  "stats": {
+    "elections": "{{count}}+ Elections Conducted",
+    "organizations": "{{count}} Organizations Trust Us",
+    "voters": "{{count}}M+ Voters Served",
+    "countries": "Active in {{count}} Countries"
+  }
+}

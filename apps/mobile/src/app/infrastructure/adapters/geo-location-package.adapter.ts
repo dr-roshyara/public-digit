@@ -55,9 +55,9 @@ export interface GeoDetectionResult {
  */
 @Injectable({ providedIn: 'root' })
 export class GeoLocationPackageAdapter {
-  // External services (injected, not created)
-  private bridgeService = inject(GeoTranslationBridgeService);
-  private cacheService = inject(MultiLayerCacheService);
+  // External services (injected optionally to prevent circular dependencies)
+  private bridgeService = inject(GeoTranslationBridgeService, { optional: true });
+  private cacheService = inject(MultiLayerCacheService, { optional: true });
 
   private readonly _initialized$ = new BehaviorSubject<boolean>(false);
 
@@ -103,8 +103,16 @@ export class GeoLocationPackageAdapter {
    * TRANSLATION: Package types → Domain types
    */
   detectUserLocale(): Observable<LocalePreference> {
+    // If bridge service is not available, immediately fallback to browser detection
+    if (!this.bridgeService) {
+      console.warn('⚠️ GeoTranslationBridgeService not available, using browser fallback');
+      const browserLang = this.getBrowserLanguage();
+      const fallbackCountry = this.inferCountryFromBrowser();
+      return of(LocalePreference.create(fallbackCountry, browserLang));
+    }
+
     return from(this.ensureInitialized()).pipe(
-      switchMap(() => this.bridgeService.initializeAutomaticLanguageDetection()),
+      switchMap(() => this.bridgeService!.initializeAutomaticLanguageDetection()),
       map(detectedLocale => {
         // Translate package result to domain value object
         const countryCode = this.extractCountryCodeFromBridge();
@@ -128,6 +136,21 @@ export class GeoLocationPackageAdapter {
    * RETURNS: Infrastructure-level detail (not exposed to domain)
    */
   getDetectionResult(): Observable<GeoDetectionResult> {
+    if (!this.bridgeService) {
+      console.warn('⚠️ GeoTranslationBridgeService not available');
+      return of({
+        detectedLocale: this.getBrowserLanguage(),
+        confidence: 0.5,
+        countryCode: this.inferCountryFromBrowser().toString(),
+        source: 'browser' as const,
+        performanceMetrics: {
+          detectionTimeMs: 0,
+          cacheHit: false,
+          fallbackUsed: true
+        }
+      });
+    }
+
     return this.bridgeService.state$.pipe(
       map(state => ({
         detectedLocale: state.detectedLocale,
@@ -146,6 +169,16 @@ export class GeoLocationPackageAdapter {
    * OUTPUT: Success/failure observable
    */
   setUserPreference(languageCode: string): Observable<boolean> {
+    if (!this.bridgeService) {
+      console.warn('⚠️ GeoTranslationBridgeService not available, storing in localStorage only');
+      // Store in localStorage as fallback
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('user_locale_preference', languageCode);
+        return of(true);
+      }
+      return of(false);
+    }
+
     return this.bridgeService.setLanguagePreference(languageCode).pipe(
       tap(success => {
         if (success) {
@@ -165,6 +198,14 @@ export class GeoLocationPackageAdapter {
    * Clear user's explicit preference and re-enable auto-detection
    */
   clearUserPreference(): Observable<string> {
+    if (!this.bridgeService) {
+      console.warn('⚠️ GeoTranslationBridgeService not available, clearing localStorage only');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('user_locale_preference');
+      }
+      return of(this.getBrowserLanguage());
+    }
+
     return this.bridgeService.clearUserPreference().pipe(
       tap(locale => {
         console.log(`🔄 User preference cleared, detected locale: ${locale}`);
@@ -187,7 +228,7 @@ export class GeoLocationPackageAdapter {
     initialized: boolean;
   } {
     return {
-      circuitBreaker: this.bridgeService.getCircuitBreakerState(),
+      circuitBreaker: this.bridgeService?.getCircuitBreakerState() || { status: 'unavailable' },
       cacheStats: this.cacheService ? {} : {}, // Cache service might not have stats
       initialized: this._initialized$.value
     };
@@ -197,6 +238,15 @@ export class GeoLocationPackageAdapter {
    * Get performance metrics for monitoring
    */
   getPerformanceMetrics() {
+    if (!this.bridgeService) {
+      console.warn('⚠️ GeoTranslationBridgeService not available');
+      return {
+        totalRequests: 0,
+        successfulRequests: 0,
+        failedRequests: 0,
+        averageResponseTime: 0
+      };
+    }
     return this.bridgeService.getMetrics();
   }
 
@@ -211,7 +261,10 @@ export class GeoLocationPackageAdapter {
   private extractCountryCodeFromBridge(): CountryCode {
     // Since bridge service doesn't expose country code directly,
     // we need to infer it from state or use a fallback
-    const state = this.bridgeService.getCircuitBreakerState();
+    if (this.bridgeService) {
+      const state = this.bridgeService.getCircuitBreakerState();
+      // Could potentially extract from state if available
+    }
 
     // Try to get from localStorage (where it might be cached)
     if (typeof localStorage !== 'undefined') {

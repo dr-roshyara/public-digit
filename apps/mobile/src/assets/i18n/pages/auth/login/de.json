@@ -1,28 +1,17 @@
 {
-  "title": "Bei Ihrem Konto anmelden",
-  "subtitle": "Greifen Sie auf die Wahlplattform Ihrer Organisation zu",
-  "form": {
-    "email": {
-      "label": "E-Mail-Adresse",
-      "placeholder": "Geben Sie Ihre E-Mail ein"
-    },
-    "password": {
-      "label": "Passwort",
-      "placeholder": "Geben Sie Ihr Passwort ein"
-    },
-    "rememberMe": "Angemeldet bleiben",
-    "forgotPassword": "Passwort vergessen?",
-    "submit": "Anmelden",
-    "loading": "Anmeldung läuft..."
-  },
+  "title": "Anmelden bei Ihrem Konto",
+  "subtitle": "Geben Sie Ihre Zugangsdaten ein, um auf die Plattform zuzugreifen",
+  "email_label": "E-Mail-Adresse",
+  "email_placeholder": "Geben Sie Ihre E-Mail ein",
+  "password_label": "Passwort",
+  "password_placeholder": "Geben Sie Ihr Passwort ein",
+  "remember_me": "Angemeldet bleiben",
+  "forgot_password": "Passwort vergessen?",
+  "login_button": "Anmelden",
+  "no_account": "Noch kein Konto?",
+  "register_link": "Hier registrieren",
   "errors": {
-    "invalidCredentials": "Ungültige E-Mail oder Passwort",
-    "networkError": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
-    "requiredField": "Dieses Feld ist erforderlich"
-  },
-  "links": {
-    "noAccount": "Noch kein Konto?",
-    "register": "Hier registrieren",
-    "backToHome": "Zurück zur Startseite"
+    "invalid_credentials": "Ungültige E-Mail oder Passwort",
+    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut."
   }
 }

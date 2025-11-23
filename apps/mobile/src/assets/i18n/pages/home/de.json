@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "title": "Demokratische Plattform für politische Organisationen",
+    "subtitle": "Sichere, transparente und zugängliche Wahlverwaltung für politische Parteien und Organisationen weltweit",
+    "cta_primary": "Loslegen",
+    "cta_secondary": "Mehr erfahren"
+  },
+  "features": {
+    "title": "Warum Public Digit wählen?",
+    "subtitle": "Umfassende Wahlverwaltungsplattform für moderne politische Organisationen"
+  },
+  "stats": {
+    "elections": "{{count}}+ Durchgeführte Wahlen",
+    "organizations": "{{count}} Organisationen vertrauen uns",
+    "voters": "{{count}}M+ Wähler bedient",
+    "countries": "Aktiv in {{count}} Ländern"
+  }
+}

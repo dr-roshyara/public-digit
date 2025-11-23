@@ -1,0 +1,13 @@
+{
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "parties": "Parties",
+  "ngos": "NGOs",
+  "elections": "Elections",
+  "transparency": "Transparency",
+  "login": "Login",
+  "logout": "Logout",
+  "register": "Register",
+  "profile": "Profile",
+  "settings": "Settings"
+}

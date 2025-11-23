@@ -1,12 +1,17 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { TranslationService } from '@application/services';
 
 /**
  * Root Application Component
  *
- * NOTE: Locale detection is now handled by AppInitService (APP_INITIALIZER)
- * No need for component-level initialization anymore.
+ * RESPONSIBILITIES:
+ * - Initialize translation system (route-first loading)
+ * - Render router outlet for page navigation
+ *
+ * NOTE: Locale detection is handled by LocaleDetectionFacade in LandingComponent
+ * Translation system initialization happens here to ensure all routes have translations
  */
 @Component({
   selector: 'app-root',
@@ -22,6 +27,20 @@ import { RouterOutlet } from '@angular/router';
   `],
   encapsulation: ViewEncapsulation.None,
 })
-export class AppComponent {
-  // Locale detection now happens in AppInitService before component initialization
+export class AppComponent implements OnInit {
+  private translationService = inject(TranslationService);
+
+  async ngOnInit(): Promise<void> {
+    console.log('[AppComponent] Initializing translation system...');
+
+    try {
+      // Initialize translation system (sets up router integration)
+      await this.translationService.initialize();
+
+      console.log('[AppComponent] ✅ Translation system initialized');
+    } catch (error) {
+      console.error('[AppComponent] ❌ Failed to initialize translation system:', error);
+      // Continue app initialization even if translations fail (graceful degradation)
+    }
+  }
 }

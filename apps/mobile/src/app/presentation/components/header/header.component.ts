@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
+import { TranslatePipe } from '@presentation/pipes/translate.pipe';
 
 /**
  * Header Component
@@ -8,14 +10,14 @@ import { RouterModule } from '@angular/router';
  * Responsive design with touch-friendly interactions
  */
 @Component({
-  selector: 'app-header',
+  selector: 'pd-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LanguageSelectorComponent, TranslatePipe],
   template: `
     <header class="mobile-header">
       <div class="container">
         <div class="header-content">
-          <div class="logo">Public Digit</div>
+          <div class="logo">{{ 'common.app_name' | translate }}</div>
 
           <!-- Mobile menu button -->
           <button class="menu-toggle" (click)="toggleMenu()"
@@ -27,15 +29,19 @@ import { RouterModule } from '@angular/router';
 
           <!-- Navigation -->
           <nav class="nav" [class.nav-open]="menuOpen">
-            <a class="nav-item" routerLink="/" (click)="closeMenu()">Home</a>
-            <a class="nav-item" routerLink="/parties" (click)="closeMenu()">Parties</a>
-            <a class="nav-item" routerLink="/ngos" (click)="closeMenu()">NGOs</a>
-            <a class="nav-item" routerLink="/elections" (click)="closeMenu()">Elections</a>
-            <a class="nav-item" routerLink="/transparency" (click)="closeMenu()">Transparency</a>
+            <a class="nav-item" routerLink="/" (click)="closeMenu()">{{ 'navigation.home' | translate }}</a>
+            <a class="nav-item" routerLink="/parties" (click)="closeMenu()">{{ 'navigation.parties' | translate }}</a>
+            <a class="nav-item" routerLink="/ngos" (click)="closeMenu()">{{ 'navigation.ngos' | translate }}</a>
+            <a class="nav-item" routerLink="/elections" (click)="closeMenu()">{{ 'navigation.elections' | translate }}</a>
+            <a class="nav-item" routerLink="/transparency" (click)="closeMenu()">{{ 'navigation.transparency' | translate }}</a>
 
             <div class="nav-actions">
-              <button class="btn btn-outline" (click)="closeMenu()">Login</button>
-              <button class="btn btn-primary" (click)="closeMenu()">Join</button>
+              <!-- Language Selector -->
+              <pd-language-selector></pd-language-selector>
+
+              <!-- Auth Buttons -->
+              <button class="btn btn-outline" (click)="closeMenu()">{{ 'common.buttons.login' | translate }}</button>
+              <button class="btn btn-primary" (click)="closeMenu()">{{ 'common.buttons.join' | translate }}</button>
             </div>
           </nav>
         </div>

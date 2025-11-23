@@ -1,0 +1,21 @@
+{
+  "title": "Erstellen Sie Ihr Konto",
+  "subtitle": "Treten Sie Public Digit bei, um an demokratischen Prozessen teilzunehmen",
+  "name_label": "Vollständiger Name",
+  "name_placeholder": "Geben Sie Ihren vollständigen Namen ein",
+  "email_label": "E-Mail-Adresse",
+  "email_placeholder": "Geben Sie Ihre E-Mail ein",
+  "password_label": "Passwort",
+  "password_placeholder": "Erstellen Sie ein Passwort",
+  "confirm_password_label": "Passwort bestätigen",
+  "confirm_password_placeholder": "Bestätigen Sie Ihr Passwort",
+  "terms_agreement": "Ich stimme den Nutzungsbedingungen und der Datenschutzrichtlinie zu",
+  "register_button": "Registrieren",
+  "already_have_account": "Bereits ein Konto?",
+  "login_link": "Hier anmelden",
+  "errors": {
+    "email_exists": "E-Mail bereits registriert",
+    "password_mismatch": "Passwörter stimmen nicht überein",
+    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut."
+  }
+}

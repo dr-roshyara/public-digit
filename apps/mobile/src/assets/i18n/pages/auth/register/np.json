@@ -1,0 +1,21 @@
+{
+  "title": "आफ्नो खाता सिर्जना गर्नुहोस्",
+  "subtitle": "लोकतान्त्रिक प्रक्रियामा भाग लिन Public Digit मा सामेल हुनुहोस्",
+  "name_label": "पूरा नाम",
+  "name_placeholder": "आफ्नो पूरा नाम प्रविष्ट गर्नुहोस्",
+  "email_label": "इमेल ठेगाना",
+  "email_placeholder": "आफ्नो इमेल प्रविष्ट गर्नुहोस्",
+  "password_label": "पासवर्ड",
+  "password_placeholder": "पासवर्ड सिर्जना गर्नुहोस्",
+  "confirm_password_label": "पासवर्ड पुष्टि गर्नुहोस्",
+  "confirm_password_placeholder": "आफ्नो पासवर्ड पुष्टि गर्नुहोस्",
+  "terms_agreement": "म सेवा सर्तहरू र गोपनीयता नीतिमा सहमत छु",
+  "register_button": "दर्ता गर्नुहोस्",
+  "already_have_account": "पहिले नै खाता छ?",
+  "login_link": "यहाँ लगइन गर्नुहोस्",
+  "errors": {
+    "email_exists": "इमेल पहिले नै दर्ता गरिएको छ",
+    "password_mismatch": "पासवर्डहरू मेल खाँदैनन्",
+    "server_error": "सर्भर त्रुटि। कृपया पछि पुन: प्रयास गर्नुहोस्।"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "app_name": "Public Digit",
+  "welcome": "Welcome to Public Digit",
+  "loading": "Loading...",
+  "saving": "Saving...",
+  "error": "An error occurred",
+  "success": "Success!",
+  "warning": "Warning",
+  "info": "Information",
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "get_started": "Get Started",
+    "learn_more": "Learn More",
+    "join": "Join",
+    "login": "Login"
+  },
+  "labels": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "description": "Description",
+    "status": "Status",
+    "date": "Date",
+    "time": "Time",
+    "created_at": "Created At",
+    "updated_at": "Updated At"
+  },
+  "messages": {
+    "no_data": "No data available",
+    "no_results": "No results found",
+    "please_wait": "Please wait..."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid_email": "Please enter a valid email address",
+    "min_length": "Must be at least {{min}} characters",
+    "max_length": "Must be at most {{max}} characters",
+    "password_mismatch": "Passwords do not match"
+  },
+  "language": {
+    "select": "Select Language",
+    "current": "Current Language",
+    "auto_detect": "Auto-detect"
+  }
+}

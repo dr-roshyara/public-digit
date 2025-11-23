@@ -14,7 +14,7 @@ export interface ActionItem {
  * Touch-optimized card layout
  */
 @Component({
-  selector: 'app-actions',
+  selector: 'pd-actions',
   standalone: true,
   imports: [CommonModule],
   template: `

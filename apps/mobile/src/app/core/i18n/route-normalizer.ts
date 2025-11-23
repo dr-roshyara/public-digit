@@ -56,7 +56,7 @@ export function normalizeRoute(routePath: string): NormalizedRoute {
     const mappedPath = routeMappings[cleanPath];
     return {
       cleanPath,
-      translationPath: `pages/${mappedPath}`,
+      translationPath: mappedPath,  // ← FIX: Don't add "pages/" prefix here
       namespace: mappedPath.replace(/\//g, '.')
     };
   }
@@ -71,7 +71,7 @@ export function normalizeRoute(routePath: string): NormalizedRoute {
     const mappedPath = routeMappings[normalized];
     return {
       cleanPath,
-      translationPath: `pages/${mappedPath}`,
+      translationPath: mappedPath,  // ← FIX: Don't add "pages/" prefix here
       namespace: mappedPath.replace(/\//g, '.')
     };
   }
@@ -120,7 +120,7 @@ export function normalizeRoute(routePath: string): NormalizedRoute {
     if (regex.test(cleanPath)) {
       return {
         cleanPath,
-        translationPath: `pages/${mapping}`,
+        translationPath: mapping,  // ← FIX: Don't add "pages/" prefix here
         namespace: mapping.replace(/\//g, '.')
       };
     }
@@ -129,7 +129,7 @@ export function normalizeRoute(routePath: string): NormalizedRoute {
   // Default fallback - IDENTICAL
   return {
     cleanPath,
-    translationPath: 'pages/home',
+    translationPath: 'home',  // ← FIX: Don't add "pages/" prefix here
     namespace: 'home'
   };
 }

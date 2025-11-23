@@ -1,0 +1,21 @@
+{
+  "title": "Create Your Account",
+  "subtitle": "Join Public Digit to participate in democratic processes",
+  "name_label": "Full Name",
+  "name_placeholder": "Enter your full name",
+  "email_label": "Email Address",
+  "email_placeholder": "Enter your email",
+  "password_label": "Password",
+  "password_placeholder": "Create a password",
+  "confirm_password_label": "Confirm Password",
+  "confirm_password_placeholder": "Confirm your password",
+  "terms_agreement": "I agree to the Terms of Service and Privacy Policy",
+  "register_button": "Register",
+  "already_have_account": "Already have an account?",
+  "login_link": "Login here",
+  "errors": {
+    "email_exists": "Email already registered",
+    "password_mismatch": "Passwords do not match",
+    "server_error": "Server error. Please try again later."
+  }
+}

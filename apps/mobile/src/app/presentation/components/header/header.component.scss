@@ -77,6 +77,15 @@
       flex-direction: column;
       gap: var(--space-sm);
 
+      /* PRODUCTION FIX: Ensure language selector is visible and properly styled */
+      pd-language-selector {
+        display: block;
+        width: 100%;
+        margin-bottom: var(--space-sm);
+        /* DEBUG: Temporary border for visibility check */
+        /* outline: 2px solid orange !important; */
+      }
+
       .btn {
         width: 100%;
         justify-content: center;
@@ -109,9 +118,23 @@
         margin-top: 0;
         flex-direction: row;
         gap: var(--space-sm);
+        align-items: center;
+        position: relative;
+        z-index: 100;  /* Lower than language selector container (1000) */
+
+        /* DESKTOP FIX: Ensure language selector is visible with proper width */
+        pd-language-selector {
+          display: block;
+          width: auto;
+          min-width: 160px;
+          margin-bottom: 0;
+          z-index: 1001;  /* Higher than nav-actions to ensure dropdown appears on top */
+        }
 
         .btn {
           width: auto;
+          position: relative;
+          z-index: 1;  /* Low z-index for buttons - below language selector */
         }
       }
     }

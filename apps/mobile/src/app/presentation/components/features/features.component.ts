@@ -14,7 +14,7 @@ export interface Feature {
  * Mobile-optimized with hover effects
  */
 @Component({
-  selector: 'app-features',
+  selector: 'pd-features',
   standalone: true,
   imports: [CommonModule],
   template: `

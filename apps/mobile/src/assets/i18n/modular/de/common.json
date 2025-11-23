@@ -1,0 +1,63 @@
+{
+  "app_name": "Public Digit",
+  "welcome": "Willkommen bei Public Digit",
+  "loading": "Laden...",
+  "saving": "Speichern...",
+  "error": "Ein Fehler ist aufgetreten",
+  "success": "Erfolg!",
+  "warning": "Warnung",
+  "info": "Information",
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "submit": "Absenden",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Ansehen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "reset": "Zurücksetzen",
+    "get_started": "Loslegen",
+    "learn_more": "Mehr erfahren",
+    "join": "Beitreten",
+    "login": "Anmelden"
+  },
+  "labels": {
+    "name": "Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirm_password": "Passwort bestätigen",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "city": "Stadt",
+    "country": "Land",
+    "description": "Beschreibung",
+    "status": "Status",
+    "date": "Datum",
+    "time": "Zeit",
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am"
+  },
+  "messages": {
+    "no_data": "Keine Daten verfügbar",
+    "no_results": "Keine Ergebnisse gefunden",
+    "please_wait": "Bitte warten..."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalid_email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "min_length": "Muss mindestens {{min}} Zeichen lang sein",
+    "max_length": "Darf höchstens {{max}} Zeichen lang sein",
+    "password_mismatch": "Passwörter stimmen nicht überein"
+  },
+  "language": {
+    "select": "Sprache wählen",
+    "current": "Aktuelle Sprache",
+    "auto_detect": "Automatisch erkennen"
+  }
+}

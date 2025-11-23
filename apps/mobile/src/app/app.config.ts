@@ -29,6 +29,26 @@ import { GeoLocationHttpRepository } from '@infrastructure/repositories/geo-loca
 import { AutoLocaleDetectionService } from '@application/services/auto-locale-detection.service';
 import { LocaleDetectionFacade } from '@presentation/facades/locale-detection.facade';
 
+// i18n Services (DDD Architecture)
+import { LocaleStateService, TranslationService } from '@application/services';
+import { RouteFirstTranslationLoader } from '@infrastructure/services';
+
+// Geo-location package services (REAL PACKAGE - now with @Injectable() decorators!)
+// ✅ FIXED: Package services now have proper Angular DI support
+import {
+  GeoTranslationBridgeService,
+  MultiLayerCacheService
+} from '@public-digit-platform/geo-location';
+
+// Infrastructure adapters
+import { GeoLocationPackageAdapter } from '@infrastructure/adapters/geo-location-package.adapter';
+
+// Use cases
+import { DetectUserLocaleUseCase } from '@application/use-cases/detect-user-locale.use-case';
+
+// Domain services
+import { CountryDetectionService as DomainCountryDetectionService } from '@domain/geo-location/services/country-detection.service';
+
 /**
  * Initialize application on startup
  *
@@ -65,10 +85,22 @@ export const appConfig: ApplicationConfig = {
     OrganizationFacade,
     { provide: OrganizationRepository, useClass: OrganizationHttpRepository },
 
+    // Geo-location Package Services (REAL - now with @Injectable() decorators!)
+    GeoTranslationBridgeService,    // Real package service with IP geolocation support
+    MultiLayerCacheService,         // Real package cache service
+
     // Geo-location DDD Services (our application layers)
     { provide: GeoLocationRepository, useClass: GeoLocationHttpRepository }, // Infrastructure → Domain
-    AutoLocaleDetectionService,     // Application service
-    LocaleDetectionFacade,          // Presentation facade
+    GeoLocationPackageAdapter,      // Infrastructure adapter (uses package services)
+    DomainCountryDetectionService,  // Domain service
+    DetectUserLocaleUseCase,        // Application use case
+    AutoLocaleDetectionService,     // Application service (uses all above)
+    LocaleDetectionFacade,          // Presentation facade (uses application service)
+
+    // i18n Services (route-first translation system)
+    LocaleStateService,             // Shared locale state (event-driven architecture)
+    RouteFirstTranslationLoader,    // Route-based translation loader (matches Vue.js backend)
+    TranslationService,             // Translation service facade (presentation layer)
 
     // Initialize application on startup (runs before Angular bootstraps)
     {

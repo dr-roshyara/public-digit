@@ -1,0 +1,26 @@
+{
+  "copyright": "© {{year}} Public Digit। सर्वाधिकार सुरक्षित।",
+  "company": {
+    "about": "हाम्रो बारेमा",
+    "contact": "सम्पर्क",
+    "careers": "करियर",
+    "press": "प्रेस"
+  },
+  "product": {
+    "features": "सुविधाहरू",
+    "pricing": "मूल्य निर्धारण",
+    "security": "सुरक्षा",
+    "roadmap": "रोडम्याप"
+  },
+  "legal": {
+    "privacy": "गोपनीयता नीति",
+    "terms": "सेवा सर्तहरू",
+    "cookies": "कुकी नीति"
+  },
+  "social": {
+    "follow_us": "हामीलाई फलो गर्नुहोस्",
+    "facebook": "फेसबुक",
+    "twitter": "ट्विटर",
+    "linkedin": "लिंकडइन"
+  }
+}

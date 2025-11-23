@@ -12,20 +12,12 @@
  * ARCHITECTURE:
  * Components → Presentation Facade → Application Service → Domain
  *
- * USAGE:
- * Components inject this facade instead of directly using application services
+ * USES LAZY SERVICE INJECTION to avoid circular dependencies
  */
 
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
-
-// Application layer
-import {
-  AutoLocaleDetectionService,
-  LocaleDetectionResult,
-  LocaleDetectionStatus
-} from '@application/services/auto-locale-detection.service';
+import { Injectable, inject, signal, computed, Injector } from '@angular/core';
+import { AutoLocaleDetectionService, LocaleDetectionResult, LocaleDetectionStatus } from '@application/services/auto-locale-detection.service';
+import { LocaleStateService } from '@application/services';
 
 /**
  * View Model for locale selection UI
@@ -33,8 +25,9 @@ import {
 export interface LocaleOption {
   code: string;
   name: string;
-  flag: string;
   nativeName: string;
+  flag: string;
+  isDefault?: boolean;
 }
 
 /**
@@ -42,13 +35,12 @@ export interface LocaleOption {
  */
 export interface LocaleDetectionViewModel {
   currentLocale: string;
-  currentLocaleName: string;
-  isLoading: boolean;
-  error: string | null;
-  confidence: 'high' | 'medium' | 'low';
-  isAutoDetected: boolean;
-  hasUserPreference: boolean;
   availableLocales: LocaleOption[];
+  isLoading: boolean;
+  errorMessage: string | null;
+  hasUserPreference: boolean;
+  detectedCountry: string | null;
+  detectionSource: string;
 }
 
 /**
@@ -59,88 +51,82 @@ export interface LocaleDetectionViewModel {
  * - Simple methods for user actions
  * - View models instead of raw DTOs
  * - Presentation-level error handling
+ *
+ * USES LAZY INJECTION to avoid circular dependencies
  */
 @Injectable({ providedIn: 'root' })
 export class LocaleDetectionFacade {
-  // Application service (orchestrator)
-  private autoLocaleService = inject(AutoLocaleDetectionService);
+  private injector = inject(Injector);
+  private localeState = inject(LocaleStateService);
 
-  // ======== REACTIVE SIGNALS (Angular 18+) ========
+  // Lazy service injection - initialized only when needed
+  private _autoLocaleService?: AutoLocaleDetectionService;
 
-  /**
-   * Reactive status signal from application service
-   */
-  private readonly statusSignal = toSignal(this.autoLocaleService.status$, {
-    initialValue: {
-      isDetecting: false,
-      lastDetection: null,
-      hasUserPreference: false,
-      error: null
-    }
+  // ======== REACTIVE STATE (Signal-based) ========
+
+  private readonly _state = signal<LocaleDetectionViewModel>({
+    currentLocale: 'en',
+    availableLocales: this.getDefaultLocaleOptions(),
+    isLoading: false,
+    errorMessage: null,
+    hasUserPreference: false,
+    detectedCountry: null,
+    detectionSource: 'browser'
   });
 
+  // ======== PUBLIC COMPUTED SIGNALS ========
+
   /**
-   * Current locale signal (computed from status)
+   * Current locale signal
    */
-  readonly currentLocale = computed(() => {
-    const status = this.statusSignal();
-    return status.lastDetection?.locale || 'en';
-  });
+  readonly currentLocale = computed(() => this._state().currentLocale);
 
   /**
    * Loading state signal
    */
-  readonly isLoading = computed(() => {
-    return this.statusSignal().isDetecting;
-  });
+  readonly isLoading = computed(() => this._state().isLoading);
 
   /**
    * Error message signal
    */
-  readonly errorMessage = computed(() => {
-    return this.statusSignal().error;
-  });
+  readonly errorMessage = computed(() => this._state().errorMessage);
+
+  /**
+   * Available locales signal
+   */
+  readonly availableLocales = computed(() => this._state().availableLocales);
 
   /**
    * Has user preference signal
    */
-  readonly hasUserPreferenceSignal = computed(() => {
-    return this.statusSignal().hasUserPreference;
-  });
+  readonly hasUserPreference = computed(() => this._state().hasUserPreference);
 
   /**
-   * View model signal (complete UI state)
+   * Detected country signal (for debug panel)
    */
-  readonly viewModel = computed((): LocaleDetectionViewModel => {
-    const status = this.statusSignal();
-    const locale = status.lastDetection?.locale || 'en';
-
-    return {
-      currentLocale: locale,
-      currentLocaleName: this.getLocaleName(locale),
-      isLoading: status.isDetecting,
-      error: status.error,
-      confidence: status.lastDetection?.confidence || 'low',
-      isAutoDetected: status.lastDetection?.source === 'geo-auto',
-      hasUserPreference: status.hasUserPreference,
-      availableLocales: this.getAvailableLocaleOptions()
-    };
-  });
-
-  // ======== OBSERVABLE STREAMS (for async pipe) ========
+  readonly detectedCountry = computed(() => this._state().detectedCountry);
 
   /**
-   * Status stream for async pipe
+   * Detection source signal (for debug panel)
    */
-  get status$(): Observable<LocaleDetectionStatus> {
-    return this.autoLocaleService.status$;
-  }
+  readonly detectionSource = computed(() => this._state().detectionSource);
 
   /**
-   * Current locale stream for async pipe
+   * Complete view model signal
    */
-  get currentLocale$(): Observable<string> {
-    return this.autoLocaleService.currentLocale$;
+  readonly viewModel = computed((): LocaleDetectionViewModel => this._state());
+
+  // ======== LAZY SERVICE ACCESS ========
+
+  /**
+   * Get the service instance (lazy initialization to break circular dependencies)
+   * This is the key to avoiding circular dependency errors
+   */
+  private getService(): AutoLocaleDetectionService {
+    if (!this._autoLocaleService) {
+      this._autoLocaleService = this.injector.get(AutoLocaleDetectionService);
+    }
+    return this._autoLocaleService;
   }
 
   // ======== USER ACTIONS (called from components) ========
@@ -152,7 +138,6 @@ export class LocaleDetectionFacade {
    *
    * @example
    * ```typescript
-   * // In component
    * async ngOnInit() {
    *   const result = await this.localeFacade.initialize();
    *   console.log('Detected locale:', result.locale);
@@ -163,10 +148,31 @@ export class LocaleDetectionFacade {
     respectUserPreference?: boolean;
     forceRefresh?: boolean;
   }): Promise<LocaleDetectionResult> {
+    this._state.update(state => ({ ...state, isLoading: true, errorMessage: null }));
+
     try {
-      return await this.autoLocaleService.initialize(options);
+      const service = this.getService();
+      const result = await service.initialize(options);
+
+      // Update state from result
+      this.updateStateFromResult(result);
+
+      // Update shared locale state (triggers TranslationService)
+      // Map LocaleDetectionResult.source to LocaleChangeEvent.source
+      const localeChangeSource = result.source === 'user-explicit' ? 'user' : 'geo-location';
+      this.localeState.setLocale(result.locale, localeChangeSource);
+
+      return result;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Locale detection failed';
       console.error('Facade: Failed to initialize locale detection:', error);
+
+      this._state.update(state => ({
+        ...state,
+        isLoading: false,
+        errorMessage
+      }));
+
       throw error;
     }
   }
@@ -178,7 +184,6 @@ export class LocaleDetectionFacade {
    *
    * @example
    * ```typescript
-   * // In component
    * async onLanguageChange(locale: string) {
    *   const success = await this.localeFacade.setLocale(locale);
    *   if (success) {
@@ -188,10 +193,31 @@ export class LocaleDetectionFacade {
    * ```
    */
   async setLocale(locale: string): Promise<boolean> {
+    this._state.update(state => ({ ...state, isLoading: true, errorMessage: null }));
+
     try {
-      return await this.autoLocaleService.setUserPreference(locale);
+      const service = this.getService();
+      const success = await service.setUserPreference(locale);
+
+      if (success) {
+        const status = service.getCurrentStatus();
+        this.updateStateFromStatus(status);
+
+        // Update shared locale state (triggers TranslationService)
+        this.localeState.setLocale(locale, 'user');
+      }
+
+      return success;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to set locale';
       console.error('Facade: Failed to set locale:', error);
+
+      this._state.update(state => ({
+        ...state,
+        isLoading: false,
+        errorMessage
+      }));
+
       return false;
     }
   }
@@ -203,7 +229,6 @@ export class LocaleDetectionFacade {
    *
    * @example
    * ```typescript
-   * // In component
    * async onResetToAutoDetect() {
    *   const result = await this.localeFacade.resetToAutoDetect();
    *   console.log('Auto-detected:', result.locale);
@@ -211,10 +236,27 @@ export class LocaleDetectionFacade {
    * ```
    */
   async resetToAutoDetect(): Promise<LocaleDetectionResult> {
+    this._state.update(state => ({ ...state, isLoading: true, errorMessage: null }));
+
     try {
-      return await this.autoLocaleService.clearUserPreference();
+      const service = this.getService();
+      const result = await service.clearUserPreference();
+      this.updateStateFromResult(result);
+
+      // Update shared locale state (triggers TranslationService)
+      this.localeState.setLocale(result.locale, 'auto-detect');
+
+      return result;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset locale';
       console.error('Facade: Failed to reset to auto-detect:', error);
+
+      this._state.update(state => ({
+        ...state,
+        isLoading: false,
+        errorMessage
+      }));
+
       throw error;
     }
   }
@@ -225,76 +267,66 @@ export class LocaleDetectionFacade {
    * Get current locale (synchronous)
    */
   getCurrentLocale(): string {
-    return this.autoLocaleService.getCurrentLocale();
+    return this._state().currentLocale;
   }
 
   /**
    * Get available locale options for UI
    */
   getAvailableLocaleOptions(): LocaleOption[] {
-    return [
-      {
-        code: 'en',
-        name: 'English',
-        flag: '🇺🇸',
-        nativeName: 'English'
-      },
-      {
-        code: 'de',
-        name: 'German',
-        flag: '🇩🇪',
-        nativeName: 'Deutsch'
-      },
-      {
-        code: 'np',
-        name: 'Nepali',
-        flag: '🇳🇵',
-        nativeName: 'नेपाली'
-      }
-    ];
-  }
-
-  /**
-   * Get locale name for display
-   */
-  getLocaleName(code: string): string {
-    const option = this.getAvailableLocaleOptions().find(opt => opt.code === code);
-    return option?.name || code;
-  }
-
-  /**
-   * Get locale flag emoji
-   */
-  getLocaleFlag(code: string): string {
-    const option = this.getAvailableLocaleOptions().find(opt => opt.code === code);
-    return option?.flag || '🌐';
-  }
-
-  /**
-   * Check if auto-detection is enabled
-   */
-  isAutoDetectionEnabled(): boolean {
-    return !this.hasUserPreference();
-  }
-
-  /**
-   * Check if user has explicit preference
-   */
-  hasUserPreference(): boolean {
-    return this.autoLocaleService.hasUserExplicitPreference();
+    return this.getDefaultLocaleOptions();
   }
 
   /**
    * Get health status for admin/debug UI
    */
   getHealthStatus() {
-    return this.autoLocaleService.getHealthStatus();
+    const service = this.getService();
+    return service.getHealthStatus();
   }
 
   /**
-   * Get view model (synchronous, for template usage)
+   * Get current detection status
    */
-  getViewModel(): LocaleDetectionViewModel {
-    return this.viewModel();
+  getCurrentStatus(): LocaleDetectionStatus {
+    const service = this.getService();
+    return service.getCurrentStatus();
+  }
+
+  // ======== PRIVATE HELPERS ========
+
+  /**
+   * Get default locale options with English always first
+   */
+  private getDefaultLocaleOptions(): LocaleOption[] {
+    return [
+      { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸', isDefault: true },
+      { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
+      { code: 'np', name: 'Nepali', nativeName: 'नेपाली', flag: '🇳🇵' }
+    ];
+  }
+
+  /**
+   * Update state from detection result
+   */
+  private updateStateFromResult(result: LocaleDetectionResult): void {
+    const service = this.getService();
+    const status = service.getCurrentStatus();
+    this.updateStateFromStatus(status);
+  }
+
+  /**
+   * Update state from detection status
+   */
+  private updateStateFromStatus(status: LocaleDetectionStatus): void {
+    this._state.update(state => ({
+      ...state,
+      currentLocale: status.lastDetection?.locale || 'en',
+      isLoading: false,
+      errorMessage: status.error || null,
+      hasUserPreference: status.hasUserPreference,
+      detectedCountry: status.lastDetection?.countryCode || null,
+      detectionSource: status.lastDetection?.source || 'unknown'
+    }));
   }
 }

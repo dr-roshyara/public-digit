@@ -1,0 +1,26 @@
+{
+  "copyright": "© {{year}} Public Digit. All rights reserved.",
+  "company": {
+    "about": "About Us",
+    "contact": "Contact",
+    "careers": "Careers",
+    "press": "Press"
+  },
+  "product": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "security": "Security",
+    "roadmap": "Roadmap"
+  },
+  "legal": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Policy"
+  },
+  "social": {
+    "follow_us": "Follow Us",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn"
+  }
+}

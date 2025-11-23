@@ -19,7 +19,7 @@
  * - Cross-cutting concerns (logging, monitoring)
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { Observable, BehaviorSubject, from, of } from 'rxjs';
 import { map, tap, catchError, switchMap, shareReplay } from 'rxjs/operators';
 
@@ -28,7 +28,8 @@ import { DetectUserLocaleUseCase } from '../use-cases/detect-user-locale.use-cas
 
 // Infrastructure dependencies
 import { GeoLocationPackageAdapter } from '@infrastructure/adapters/geo-location-package.adapter';
-import { RouteFirstTranslationLoader } from '@core/i18n/route-first.loader';
+import { IpGeolocationAdapter } from '@infrastructure/adapters/ip-geolocation.adapter';
+import { RouteFirstTranslationLoader } from '@infrastructure/services';
 
 // Domain dependencies
 import { LocalePreference } from '@domain/geo-location/value-objects/locale-preference.vo';
@@ -65,18 +66,83 @@ export interface LocaleDetectionStatus {
  */
 @Injectable({ providedIn: 'root' })
 export class AutoLocaleDetectionService {
-  // Use cases (domain orchestration)
-  private detectUserLocaleUseCase = inject(DetectUserLocaleUseCase);
+  // Injector for lazy service access (CRITICAL: breaks circular dependency)
+  private injector = inject(Injector);
 
-  // Infrastructure adapters
-  private geoAdapter = inject(GeoLocationPackageAdapter);
-  private translationLoader = inject(RouteFirstTranslationLoader);
+  // Direct injection for IP geolocation (no circular dependency)
+  private ipGeoAdapter = inject(IpGeolocationAdapter);
 
-  // Application state
+  // Cached service instances for performance
+  private _detectUserLocaleUseCase?: DetectUserLocaleUseCase;
+  private _geoAdapter?: GeoLocationPackageAdapter | null;
+  private _translationLoader?: RouteFirstTranslationLoader;
+  private _geoAdapterAttempted = false;
+
+  /**
+   * Get use case (lazy initialization to break circular dependency)
+   */
+  private getDetectUserLocaleUseCase(): DetectUserLocaleUseCase {
+    if (!this._detectUserLocaleUseCase) {
+      this._detectUserLocaleUseCase = this.injector.get(DetectUserLocaleUseCase);
+    }
+    return this._detectUserLocaleUseCase;
+  }
+
+  /**
+   * Get geo adapter (lazy initialization with proper Angular inject pattern)
+   *
+   * PRODUCTION FIX: Uses inject() function with optional: true
+   * This prevents circular dependency while maintaining geo-location capability
+   *
+   * PATTERN: Lazy Injection with Optional Fallback
+   * - First call attempts to inject the service
+   * - If unavailable/circular, returns null
+   * - Result is cached for performance
+   * - Logs appropriate warnings for debugging
+   */
+  private getGeoAdapter(): GeoLocationPackageAdapter | null {
+    // Return cached result if already attempted
+    if (this._geoAdapterAttempted) {
+      return this._geoAdapter ?? null;
+    }
+
+    // Mark as attempted to prevent repeated injection attempts
+    this._geoAdapterAttempted = true;
+
+    try {
+      // PRODUCTION PATTERN: Use inject() with optional: true
+      // This breaks circular dependency by making the service optional
+      this._geoAdapter = this.injector.get(GeoLocationPackageAdapter, null, { optional: true });
+
+      if (this._geoAdapter) {
+        console.log('✅ GeoLocationPackageAdapter available - geo-location enabled');
+      } else {
+        console.log('ℹ️  GeoLocationPackageAdapter not available - using browser fallback only');
+      }
+
+      return this._geoAdapter;
+    } catch (error) {
+      console.warn('⚠️ Failed to inject GeoLocationPackageAdapter:', error);
+      this._geoAdapter = null;
+      return null;
+    }
+  }
+
+  /**
+   * Get translation loader (lazy initialization to break circular dependency)
+   */
+  private getTranslationLoader(): RouteFirstTranslationLoader {
+    if (!this._translationLoader) {
+      this._translationLoader = this.injector.get(RouteFirstTranslationLoader);
+    }
+    return this._translationLoader;
+  }
+
+  // Application state (initialized with static values to avoid circular dependency)
   private readonly _status$ = new BehaviorSubject<LocaleDetectionStatus>({
     isDetecting: false,
     lastDetection: null,
-    hasUserPreference: this.hasUserExplicitPreference(),
+    hasUserPreference: false, // Will be updated during initialization
     error: null
   });
 
@@ -99,11 +165,11 @@ export class AutoLocaleDetectionService {
   /**
    * Initialize automatic locale detection
    *
-   * WORKFLOW:
-   * 1. Initialize geo-location adapter
-   * 2. Check user preference (if respectUserPreference = true)
-   * 3. Detect locale via use case
-   * 4. Apply to translation system
+   * NEW WORKFLOW (IP-based):
+   * 1. Check user explicit preference first
+   * 2. Try IP-based geolocation (fast, no permissions)
+   * 3. Optionally use package-based detection (if available)
+   * 4. Apply locale to translation system
    * 5. Update application state
    *
    * USAGE: Call from APP_INITIALIZER or component ngOnInit
@@ -114,7 +180,7 @@ export class AutoLocaleDetectionService {
   } = {}): Promise<LocaleDetectionResult> {
     const { respectUserPreference = true, forceRefresh = false } = options;
 
-    console.log('🌍 Initializing automatic locale detection...', {
+    console.log('🌍 Initializing automatic locale detection (IP-based)...', {
       respectUserPreference,
       forceRefresh
     });
@@ -122,37 +188,107 @@ export class AutoLocaleDetectionService {
     this.updateStatus({ isDetecting: true, error: null });
 
     try {
-      // Step 1: Initialize infrastructure adapter
-      await this.geoAdapter.initialize();
+      // Step 1: Check user explicit preference
+      if (respectUserPreference && this.hasUserExplicitPreference()) {
+        const userLocale = localStorage.getItem('user_explicit_locale')!;
+        console.log(`✅ Using user explicit preference: ${userLocale}`);
 
-      // Step 2: Execute domain use case
-      const localePreference = await this.detectUserLocaleUseCase.execute({
-        forceRefresh,
-        respectUserChoice: respectUserPreference
-      });
+        await this.applyLocaleToTranslationSystem(userLocale);
 
-      // Step 3: Create application-level result DTO
-      const result = this.mapToDetectionResult(localePreference, 'geo-auto');
+        const result: LocaleDetectionResult = {
+          locale: userLocale,
+          countryCode: 'USER',
+          confidence: 'high',
+          source: 'user-explicit',
+          timestamp: new Date()
+        };
 
-      // Step 4: Apply to translation system
-      await this.applyLocaleToTranslationSystem(result.locale);
+        this.updateStatus({
+          isDetecting: false,
+          lastDetection: result,
+          hasUserPreference: true,
+          error: null
+        });
 
-      // Step 5: Update application state
+        return result;
+      }
+
+      // Step 2: Try IP-based geolocation (PRODUCTION PATTERN: Fast & Privacy-Focused)
+      try {
+        const ipGeoResult = await this.ipGeoAdapter.detect(forceRefresh).toPromise();
+
+        if (ipGeoResult) {
+          const detectedLocale = this.mapIpGeoToLocale(ipGeoResult);
+          console.log(`✅ IP geolocation detected locale: ${detectedLocale}`, ipGeoResult);
+
+          await this.applyLocaleToTranslationSystem(detectedLocale);
+
+          const result: LocaleDetectionResult = {
+            locale: detectedLocale,
+            countryCode: ipGeoResult.country,
+            confidence: this.mapConfidenceLevel(ipGeoResult.confidence),
+            source: 'geo-auto',
+            timestamp: new Date()
+          };
+
+          this.updateStatus({
+            isDetecting: false,
+            lastDetection: result,
+            hasUserPreference: false,
+            error: null
+          });
+
+          return result;
+        }
+      } catch (ipError) {
+        console.warn('⚠️ IP geolocation failed, trying package adapter...', ipError);
+      }
+
+      // Step 3: Try package-based detection (if available - optional)
+      const geoAdapter = this.getGeoAdapter();
+      if (geoAdapter) {
+        try {
+          await geoAdapter.initialize();
+
+          const localePreference = await this.getDetectUserLocaleUseCase().execute({
+            forceRefresh,
+            respectUserChoice: respectUserPreference
+          });
+
+          const result = this.mapToDetectionResult(localePreference, 'geo-auto');
+          await this.applyLocaleToTranslationSystem(result.locale);
+
+          this.updateStatus({
+            isDetecting: false,
+            lastDetection: result,
+            hasUserPreference: false,
+            error: null
+          });
+
+          console.log('✅ Package-based locale detection completed:', result);
+          return result;
+
+        } catch (packageError) {
+          console.warn('⚠️ Package-based detection failed, using browser fallback...', packageError);
+        }
+      }
+
+      // Step 4: Fallback strategy
+      const fallbackResult = await this.executeFallbackStrategy();
+
       this.updateStatus({
         isDetecting: false,
-        lastDetection: result,
-        hasUserPreference: this.hasUserExplicitPreference(),
+        lastDetection: fallbackResult,
+        hasUserPreference: false,
         error: null
       });
 
-      console.log('✅ Automatic locale detection completed:', result);
-
-      return result;
+      return fallbackResult;
 
     } catch (error) {
       console.error('❌ Automatic locale detection failed:', error);
 
-      // Fallback strategy
+      // Ultimate fallback
       const fallbackResult = await this.executeFallbackStrategy();
 
       this.updateStatus({
@@ -187,7 +323,10 @@ export class AutoLocaleDetectionService {
       }
 
       // Store in infrastructure
-      const success = await this.geoAdapter.setUserPreference(locale).toPromise();
+      const geoAdapter = this.getGeoAdapter();
+      const success = geoAdapter
+        ? await geoAdapter.setUserPreference(locale).toPromise()
+        : true; // Assume success if geo-location is disabled
 
       if (!success) {
         throw new Error('Failed to store user preference');
@@ -244,7 +383,10 @@ export class AutoLocaleDetectionService {
 
     try {
       // Clear in infrastructure
-      await this.geoAdapter.clearUserPreference().toPromise();
+      const geoAdapter = this.getGeoAdapter();
+      if (geoAdapter) {
+        await geoAdapter.clearUserPreference().toPromise();
+      }
 
       // Clear local storage
       localStorage.removeItem('user_explicit_locale');
@@ -271,7 +413,7 @@ export class AutoLocaleDetectionService {
    * Get current locale (synchronous)
    */
   getCurrentLocale(): string {
-    return this._status$.value.lastDetection?.locale || this.translationLoader.getCurrentLocale() || 'en';
+    return this._status$.value.lastDetection?.locale || this.getTranslationLoader().getCurrentLocale() || 'en';
   }
 
   /**
@@ -295,9 +437,10 @@ export class AutoLocaleDetectionService {
     application: LocaleDetectionStatus;
     infrastructure: any;
   } {
+    const geoAdapter = this.getGeoAdapter();
     return {
       application: this.getCurrentStatus(),
-      infrastructure: this.geoAdapter.getHealthStatus()
+      infrastructure: geoAdapter ? geoAdapter.getHealthStatus() : { status: 'disabled' }
     };
   }
 
@@ -306,7 +449,7 @@ export class AutoLocaleDetectionService {
   private async applyLocaleToTranslationSystem(locale: string): Promise<void> {
     try {
       console.log(`📝 Applying locale to translation system: ${locale}`);
-      await this.translationLoader.setLocale(locale);
+      await this.getTranslationLoader().setLocale(locale);
       console.log('✅ Locale applied to translation system');
     } catch (error) {
       console.error('❌ Failed to apply locale to translation system:', error);
@@ -375,5 +518,57 @@ export class AutoLocaleDetectionService {
       ...this._status$.value,
       ...partial
     });
+  }
+
+  /**
+   * Map IP geolocation result to locale
+   *
+   * STRATEGY:
+   * 1. Check country-specific language mappings
+   * 2. Use primary language from country
+   * 3. Fallback to English
+   */
+  private mapIpGeoToLocale(ipGeo: any): string {
+    // Country to locale mapping for supported languages
+    const countryToLocale: Record<string, string> = {
+      'DE': 'de',  // Germany
+      'AT': 'de',  // Austria
+      'CH': 'de',  // Switzerland (German-speaking region)
+      'NP': 'np',  // Nepal
+      'IN': 'en',  // India (English as primary for app)
+      'US': 'en',  // United States
+      'GB': 'en',  // United Kingdom
+      'CA': 'en',  // Canada
+      'AU': 'en',  // Australia
+      'NZ': 'en',  // New Zealand
+    };
+
+    const detectedLocale = countryToLocale[ipGeo.country];
+
+    if (detectedLocale && this.isValidLocale(detectedLocale)) {
+      return detectedLocale;
+    }
+
+    // Fallback: Check if any detected language is supported
+    if (ipGeo.languages && Array.isArray(ipGeo.languages)) {
+      for (const lang of ipGeo.languages) {
+        const langCode = lang.split('-')[0].toLowerCase();
+        if (this.isValidLocale(langCode)) {
+          return langCode;
+        }
+      }
+    }
+
+    // Ultimate fallback: English
+    return 'en';
+  }
+
+  /**
+   * Map numeric confidence to categorical level
+   */
+  private mapConfidenceLevel(confidence: number): 'high' | 'medium' | 'low' {
+    if (confidence >= 0.7) return 'high';
+    if (confidence >= 0.4) return 'medium';
+    return 'low';
   }
 }
