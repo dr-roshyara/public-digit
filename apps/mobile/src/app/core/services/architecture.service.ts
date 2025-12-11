@@ -49,11 +49,17 @@ export class ArchitectureService {
   }
 
   /**
-   * Get base URL for architecture files (without /api/v1 suffix)
+   * Get base URL for architecture files (platform/landlord level)
+   * Architecture files are served from the platform, not tenant-specific
    */
   private getArchitectureBaseUrl(): string {
-    // Remove /api/v1 from the end of apiUrl to get base backend URL
-    return environment.apiUrl.replace(/\/api\/v1$/, '');
+    // Architecture files are at platform level (landlord DB)
+    // For development: http://localhost:8000
+    // For production: https://publicdigit.com
+    if (environment.production) {
+      return 'https://publicdigit.com';
+    }
+    return 'http://localhost:8000';
   }
 
   /**

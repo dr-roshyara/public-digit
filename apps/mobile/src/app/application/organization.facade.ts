@@ -35,14 +35,13 @@ export class OrganizationFacade {
   /**
    * Get all organizations the user has access to
    *
-   * Uses existing AuthService during migration, with fallback to new domain model
+   * Uses repository directly since mobile app doesn't need tenant listing
    */
   getOrganizations(): Observable<Organization[]> {
-    return this.authService.loadUserTenants().pipe(
-      map(tenants => tenants.map(tenant => this.convertToDomain(tenant))),
+    return this.organizationRepository.findAll().pipe(
       catchError(error => {
-        console.warn('⚠️ Failed to load organizations from existing service, falling back to repository:', error);
-        return this.organizationRepository.findAll();
+        console.warn('⚠️ Failed to load organizations from repository:', error);
+        return of([]);
       })
     );
   }
@@ -240,9 +239,7 @@ export class OrganizationFacade {
    * Reactive version that emits when organizations change
    */
   get organizations$(): Observable<Organization[]> {
-    return this.authService.userTenants$.pipe(
-      map(tenants => tenants.map(tenant => this.convertToDomain(tenant)))
-    );
+    return this.getOrganizations();
   }
 
   /**

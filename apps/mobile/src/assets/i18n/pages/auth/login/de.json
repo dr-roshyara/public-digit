@@ -1,6 +1,9 @@
 {
   "title": "Anmelden bei Ihrem Konto",
-  "subtitle": "Geben Sie Ihre Zugangsdaten ein, um auf die Plattform zuzugreifen",
+  "subtitle": "Geben Sie Ihren Mandanten und Ihre Zugangsdaten ein, um auf die Plattform zuzugreifen",
+  "tenant_slug_label": "Mandanten-Slug",
+  "tenant_slug_placeholder": "Geben Sie Ihren Mandanten-Slug ein (z.B. nrna)",
+  "tenant_slug_help": "Der eindeutige Bezeichner für Ihre Organisation",
   "email_label": "E-Mail-Adresse",
   "email_placeholder": "Geben Sie Ihre E-Mail ein",
   "password_label": "Passwort",
@@ -12,6 +15,8 @@
   "register_link": "Hier registrieren",
   "errors": {
     "invalid_credentials": "Ungültige E-Mail oder Passwort",
-    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut."
+    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "tenant_required": "Mandanten-Slug ist erforderlich",
+    "invalid_tenant": "Ungültiger Mandanten-Slug"
   }
 }

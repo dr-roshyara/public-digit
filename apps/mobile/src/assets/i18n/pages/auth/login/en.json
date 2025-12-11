@@ -1,6 +1,9 @@
 {
   "title": "Login to Your Account",
-  "subtitle": "Enter your credentials to access the platform",
+  "subtitle": "Enter your tenant and credentials to access the platform",
+  "tenant_slug_label": "Tenant Slug",
+  "tenant_slug_placeholder": "Enter your tenant slug (e.g., nrna)",
+  "tenant_slug_help": "The unique identifier for your organization",
   "email_label": "Email Address",
   "email_placeholder": "Enter your email",
   "password_label": "Password",
@@ -12,6 +15,8 @@
   "register_link": "Register here",
   "errors": {
     "invalid_credentials": "Invalid email or password",
-    "server_error": "Server error. Please try again later."
+    "server_error": "Server error. Please try again later.",
+    "tenant_required": "Tenant slug is required",
+    "invalid_tenant": "Invalid tenant slug"
   }
 }

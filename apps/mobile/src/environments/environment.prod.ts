@@ -1,14 +1,26 @@
 /**
  * Production Environment
- * Uses production API URL for all platforms
+ * Uses subdomain-based tenancy with mobile API: https://{slug}.publicdigit.com/mapi/v1
  */
-export const environment = {
+function getTenantApiUrl(slug: string): string {
+  if (!slug || slug.trim() === '') {
+    throw new Error('Tenant slug is required');
+  }
+  return `https://${slug}.publicdigit.com/mapi/v1`;
+}
+
+export const environment: {
+  production: boolean;
+  appId: string;
+  appName: string;
+  version: string;
+  getTenantApiUrl: (slug: string) => string;
+} = {
   production: true,
   appId: 'com.publicdigit.app',
   appName: 'PublicDigit',
+  version: '1.0.0',
 
-  // Production always uses the public domain
-  apiUrl: 'https://publicdigit.com/api/v1',
-
-  version: '1.0.0'
+  // SIMPLE function - no nested objects, no platform APIs
+  getTenantApiUrl: getTenantApiUrl
 };

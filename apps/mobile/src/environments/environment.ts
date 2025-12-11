@@ -1,13 +1,19 @@
 /**
- * Auto-detect API URL based on environment
+ * Development Environment
+ * Auto-detects platform and configures appropriate API URL
  */
-function getApiUrl(): string {
+
+/**
+ * Platform Mobile API URL (NO tenant slug)
+ * Used for: login, logout, getting tenant list, platform health
+ */
+function getPlatformApiUrl(): string {
   // Check if running on mobile (Capacitor)
   const isMobile = !!(window as any).Capacitor;
 
   if (!isMobile) {
-    // Running in browser - use localhost
-    return 'http://localhost:8000/api/v1';
+    // Browser development - platform mobile API
+    return 'http://localhost:8000/mapi/v1';
   }
 
   // Running on mobile device
@@ -15,27 +21,68 @@ function getApiUrl(): string {
 
   if (platform === 'android') {
     // Android Emulator uses 10.0.2.2 to access host machine
-    // Physical devices use your computer's local IP
-
-    // Try to detect if emulator by checking if we're on 10.0.2.x network
-    // For now, default to emulator IP (most common dev scenario)
-    // You can change this to your local IP if using a physical device
-
-    return 'http://10.0.2.2:8000/api/v1';  // Android Emulator
-    // return 'http://192.168.178.27:8000/api/v1';  // Physical Device (uncomment if needed)
+    return 'http://10.0.2.2:8000/mapi/v1';
   }
 
-  // Fallback to localhost
-  return 'http://localhost:8000/api/v1';
+  if (platform === 'ios') {
+    // iOS simulator uses localhost
+    return 'http://localhost:8000/mapi/v1';
+  }
+
+  // Fallback for web platform or unknown
+  return 'http://localhost:8000/mapi/v1';
 }
 
-export const environment = {
+/**
+ * Tenant Mobile API URL (WITH tenant slug)
+ * Used for: elections, voting, profile, dashboard, all tenant operations
+ */
+function getTenantApiUrl(slug: string): string {
+  if (!slug || slug.trim() === '') {
+    throw new Error('Tenant slug is required');
+  }
+
+  // Check if running on mobile (Capacitor)
+  const isMobile = !!(window as any).Capacitor;
+
+  if (!isMobile) {
+    // Browser development - path-based tenancy with mobile API
+    return `http://localhost:8000/${slug}/mapi/v1`;
+  }
+
+  // Running on mobile device
+  const platform = (window as any).Capacitor?.getPlatform?.() || 'web';
+
+  if (platform === 'android') {
+    // Android Emulator uses 10.0.2.2 to access host machine
+    return `http://10.0.2.2:8000/${slug}/mapi/v1`;
+  }
+
+  if (platform === 'ios') {
+    // iOS simulator uses localhost
+    return `http://localhost:8000/${slug}/mapi/v1`;
+  }
+
+  // Fallback for web platform or unknown
+  return `http://localhost:8000/${slug}/mapi/v1`;
+}
+
+export const environment: {
+  production: boolean;
+  appId: string;
+  appName: string;
+  version: string;
+  getPlatformApiUrl: () => string;
+  getTenantApiUrl: (slug: string) => string;
+} = {
   production: false,
   appId: 'com.publicdigit.app.dev',
   appName: 'PublicDigit Dev',
+  version: '1.0.0-dev',
 
-  // Auto-detected API URL based on platform
-  apiUrl: getApiUrl(),
+  // Platform API - NO tenant slug (login, tenant list, platform health)
+  getPlatformApiUrl: getPlatformApiUrl,
 
-  version: '1.0.0-dev'
+  // Tenant API - WITH tenant slug (elections, voting, profile, dashboard)
+  getTenantApiUrl: getTenantApiUrl
 };

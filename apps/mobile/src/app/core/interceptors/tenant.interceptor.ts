@@ -18,7 +18,7 @@ export const tenantInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Only intercept API calls to our backend
   // Skip external URLs and assets
-  if (!req.url.includes('/api/v1')) {
+  if (!req.url.includes('/mapi/v1')) {
     return next(req);
   }
 

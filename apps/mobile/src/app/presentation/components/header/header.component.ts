@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { TranslatePipe } from '@presentation/pipes/translate.pipe';
 
@@ -40,8 +40,8 @@ import { TranslatePipe } from '@presentation/pipes/translate.pipe';
               <pd-language-selector></pd-language-selector>
 
               <!-- Auth Buttons -->
-              <button class="btn btn-outline" (click)="closeMenu()">{{ 'common.buttons.login' | translate }}</button>
-              <button class="btn btn-primary" (click)="closeMenu()">{{ 'common.buttons.join' | translate }}</button>
+              <button class="btn btn-outline" (click)="navigateToLogin()">{{ 'common.buttons.login' | translate }}</button>
+              <button class="btn btn-primary" (click)="navigateToJoin()">{{ 'common.buttons.join' | translate }}</button>
             </div>
           </nav>
         </div>
@@ -51,6 +51,7 @@ import { TranslatePipe } from '@presentation/pipes/translate.pipe';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  private router = inject(Router);
   menuOpen = false;
 
   toggleMenu(): void {
@@ -61,5 +62,16 @@ export class HeaderComponent {
   closeMenu(): void {
     this.menuOpen = false;
     document.body.style.overflow = '';
+  }
+
+  navigateToLogin(): void {
+    this.closeMenu();
+    this.router.navigate(['/login']);
+  }
+
+  navigateToJoin(): void {
+    this.closeMenu();
+    // TODO: Add registration/join route
+    this.router.navigate(['/login']);
   }
 }

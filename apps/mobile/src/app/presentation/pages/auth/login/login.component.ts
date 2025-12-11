@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
-import { TenantContextService } from '@core/services/tenant-context.service';
 
 @Component({
   selector: 'app-login',
@@ -14,34 +13,21 @@ import { TenantContextService } from '@core/services/tenant-context.service';
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <h2>Login to PublicDigit</h2>
 
-        <!-- Tenant Slug Input (shown only on mobile without subdomain) -->
-        @if (showTenantInput) {
-          <div class="form-group">
-            <label for="tenantSlug">Organization ID</label>
-            <input
-              type="text"
-              id="tenantSlug"
-              formControlName="tenantSlug"
-              placeholder="Enter your organization ID (e.g., nrna)"
-              class="form-input"
-            />
-            @if (loginForm.get('tenantSlug')?.invalid && loginForm.get('tenantSlug')?.touched) {
-              <div class="error">Organization ID is required</div>
-            }
-            <small class="helper-text">This is provided by your organization admin</small>
-          </div>
-        }
-
-        <!-- Show current tenant if detected -->
-        @if (!showTenantInput && currentTenant) {
-          <div class="tenant-info">
-            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p>Logging into: <strong>{{ currentTenant }}</strong></p>
-          </div>
-        }
+        <!-- Tenant Slug Input (always shown for mobile app) -->
+        <div class="form-group">
+          <label for="tenantSlug">Organization ID</label>
+          <input
+            type="text"
+            id="tenantSlug"
+            formControlName="tenantSlug"
+            placeholder="Enter your organization ID (e.g., nrna)"
+            class="form-input"
+          />
+          @if (loginForm.get('tenantSlug')?.invalid && loginForm.get('tenantSlug')?.touched) {
+            <div class="error">Organization ID is required</div>
+          }
+          <small class="helper-text">This is provided by your organization admin</small>
+        </div>
 
         <div class="form-group">
           <label for="email">Email</label>
@@ -202,14 +188,11 @@ import { TenantContextService } from '@core/services/tenant-context.service';
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private tenantContext = inject(TenantContextService);
   private router = inject(Router);
 
   loginForm!: FormGroup;
   isLoading = false;
   error = '';
-  showTenantInput = true;
-  currentTenant = '';
 
   ngOnInit(): void {
     this.createForm();
@@ -225,19 +208,17 @@ export class LoginComponent implements OnInit {
   }
 
   private detectTenantContext(): void {
-    const currentSlug = this.tenantContext.getCurrentSlug();
-
-    if (currentSlug) {
-      // Tenant context detected via subdomain or storage
-      this.showTenantInput = false;
-      this.currentTenant = currentSlug;
-      this.loginForm.get('tenantSlug')?.setValue(currentSlug);
-      this.loginForm.get('tenantSlug')?.clearValidators();
-      this.loginForm.get('tenantSlug')?.updateValueAndValidity();
-      console.log(`🏢 Tenant context detected: ${currentSlug}`);
-    } else {
-      console.log('📱 No tenant context, showing tenant input field');
+    // For mobile app, always show tenant input field
+    // Pre-fill from localStorage if available
+    if (typeof window !== 'undefined') {
+      const savedSlug = localStorage.getItem('current_tenant_slug');
+      if (savedSlug) {
+        this.loginForm.get('tenantSlug')?.setValue(savedSlug);
+        console.log(`📱 Pre-filled tenant slug from storage: ${savedSlug}`);
+      }
     }
+
+    console.log('📱 Mobile login - tenant slug input required');
   }
 
   onSubmit(): void {
@@ -247,18 +228,18 @@ export class LoginComponent implements OnInit {
 
       const formValue = this.loginForm.getRawValue();
 
-      // Call AuthService with tenant slug
+      // Call AuthService with tenant slug first
       this.authService.login(
+        formValue.tenantSlug,
         {
           email: formValue.email,
           password: formValue.password
-        },
-        formValue.tenantSlug
+        }
       ).subscribe({
         next: (response) => {
           this.isLoading = false;
           console.log('✅ Login successful:', response);
-          // AuthService handles navigation
+          // AuthService handles navigation to /dashboard
         },
         error: (error) => {
           this.isLoading = false;

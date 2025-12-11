@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@presentation/pipes/translate.pipe';
 
 /**
@@ -20,8 +21,8 @@ import { TranslatePipe } from '@presentation/pipes/translate.pipe';
             {{ 'home.hero.subtitle' | translate }}
           </p>
           <div class="hero-actions">
-            <button class="btn btn-secondary hero-cta">{{ 'home.hero.cta_primary' | translate }}</button>
-            <button class="btn btn-outline">{{ 'home.hero.cta_secondary' | translate }}</button>
+            <button class="btn btn-secondary hero-cta" (click)="navigateToLogin()">{{ 'home.hero.cta_primary' | translate }}</button>
+            <button class="btn btn-outline" (click)="navigateToLogin()">{{ 'home.hero.cta_secondary' | translate }}</button>
           </div>
         </div>
 
@@ -52,4 +53,10 @@ import { TranslatePipe } from '@presentation/pipes/translate.pipe';
   `,
   styleUrls: ['./hero.component.scss']
 })
-export class HeroComponent { }
+export class HeroComponent {
+  private router = inject(Router);
+
+  navigateToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+}

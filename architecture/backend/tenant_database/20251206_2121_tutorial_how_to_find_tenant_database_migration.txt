@@ -1,0 +1,304 @@
+# 🎯 **TENANT DATABASE MANAGEMENT GUIDE**
+
+## 📊 **HOW TO KNOW WHICH COMMAND FOR WHICH DATABASE**
+
+### **Quick Decision Table:**
+
+| What you want to do | Database | Command | Example |
+|---------------------|----------|---------|---------|
+| **List all tenants** | Landlord | `php artisan tinker` → `Tenant::all()` | |
+| **Create new tenant DB** | Both | Manual SQL + Landlord record | |
+| **Run migrations** | Tenant | `php artisan tenants:artisan "migrate" --tenant=xxx` | `--tenant=nrna` |
+| **Seed data** | Tenant | `php artisan tenants:artisan "db:seed" --tenant=xxx` | `--tenant=uml` |
+| **Check tables** | Tenant | `php artisan tenants:artisan "migrate:status" --tenant=xxx` | |
+| **Run ANY artisan** | Tenant | `php artisan tenants:artisan "command" --tenant=xxx` | `--tenant=test` |
+| **Landlord operations** | Landlord | `php artisan migrate` (no tenant) | |
+
+## 🚀 **PART 1: CREATING TENANT DATABASES**
+
+### **Method A: Manual Creation (Simple)**
+```bash
+# 1. Create database in MySQL
+mysql -e "CREATE DATABASE tenant_nrna CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 2. Add tenant record to landlord
+php artisan tinker
+>>> \App\Models\Tenant::create([
+...     'name' => 'NRNA Organization',
+...     'slug' => 'nrna',
+...     'domain' => 'nrna.localhost',
+...     'database_name' => 'tenant_nrna',  # Must match DB name above
+... ]);
+>>> exit
+```
+
+### **Method B: Automated Creation**
+Create a command:
+```bash
+php artisan make:command CreateTenantDatabase
+```
+
+```php
+// app/Console/Commands/CreateTenantDatabase.php
+protected $signature = 'tenant:create 
+                        {name : Tenant name}
+                        {slug : Tenant slug}
+                        {--domain= : Domain name}';
+
+public function handle()
+{
+    $slug = $this->argument('slug');
+    $dbName = 'tenant_' . $slug;
+    
+    // 1. Create database
+    DB::statement("CREATE DATABASE IF NOT EXISTS {$dbName} 
+                   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    
+    // 2. Create tenant record
+    Tenant::create([
+        'name' => $this->argument('name'),
+        'slug' => $slug,
+        'domain' => $this->option('domain') ?? $slug . '.localhost',
+        'database_name' => $dbName,
+    ]);
+    
+    $this->info("✅ Tenant database created: {$dbName}");
+}
+```
+
+Use it:
+```bash
+php artisan tenant:create "UML Party" uml --domain=uml.localhost
+# Creates: tenant_uml database + tenant record
+```
+
+## 🎯 **PART 2: TENANTAUTH CONTEXT RESPONSIBILITIES**
+
+### **What TenantAuth Context Handles:**
+```
+app/Contexts/TenantAuth/
+├── Domain/Models/              # Tenant-specific models
+│   ├── TenantRole.php         # RBAC in tenant DBs
+│   ├── TenantPermission.php
+│   └── TenantUser.php
+│
+├── Infrastructure/Database/
+│   └── Migrations/            # Tenant DB migrations ONLY
+│       ├── add_tenant_columns_to_rbac.php
+│       └── create_tenant_users.php
+│
+└── Application/Services/      # Tenant RBAC business logic
+    └── TenantRbacService.php
+```
+
+### **What TenantAuth Context DOES NOT Handle:**
+- ❌ Landlord `tenants` table
+- ❌ Platform/system migrations
+- ❌ Shared/global data
+
+## 📁 **PART 3: MIGRATION FILE PLACEMENT RULES**
+
+### **Rule 1: Who owns the table?**
+```
+If table exists in TENANT databases → TenantAuth Context
+If table exists in LANDLORD database → Platform Context
+```
+
+### **Rule 2: File location examples:**
+```bash
+# ❌ WRONG - In global migrations (runs on landlord)
+database/migrations/create_roles_table.php
+
+# ✅ CORRECT - In TenantAuth context (runs on tenants)
+app/Contexts/TenantAuth/Infrastructure/Database/Migrations/add_tenant_columns_to_roles.php
+```
+
+### **Rule 3: Migration content:**
+```php
+// app/Contexts/TenantAuth/.../add_tenant_columns.php
+public function up()
+{
+    // This runs in TENANT databases
+    if (Schema::hasTable('roles')) {
+        Schema::table('roles', function ($table) {
+            // Add tenant-aware columns
+            $table->unsignedBigInteger('tenant_id')->nullable();
+        });
+    }
+}
+```
+
+## 🚀 **PART 4: PRACTICAL WORKFLOW WITH CONTEXTS**
+
+### **Step 1: Setup Landlord First**
+```bash
+# 1. Run landlord migrations (tenants table)
+php artisan migrate
+
+# 2. Check tenants table exists
+mysql -e "USE election; DESCRIBE tenants;"
+```
+
+### **Step 2: Create New Tenant**
+```bash
+# 3. Create tenant database
+mysql -e "CREATE DATABASE tenant_nepal_communist;"
+
+# 4. Add tenant record
+php artisan tinker
+>>> \App\Models\Tenant::create([
+...     'name' => 'Nepal Communist Party',
+...     'slug' => 'ncp',
+...     'database_name' => 'tenant_nepal_communist',
+... ]);
+```
+
+### **Step 3: Run TenantAuth Migrations**
+```bash
+# 5. Run TenantAuth context migrations on this tenant
+php artisan tenants:artisan "migrate --database=tenant --path=app/Contexts/TenantAuth/Infrastructure/Database/Migrations" --tenant=ncp
+```
+
+### **Step 4: Verify**
+```bash
+# 6. Check what tables exist in tenant DB
+mysql -e "USE tenant_nepal_communist; SHOW TABLES;"
+# Should see: roles, permissions, users (with tenant_id columns)
+```
+
+## 🔧 **PART 5: COMMAND LINE CHEATSHEET**
+
+### **For Specific Tenant:**
+```bash
+# Replace {tenant} with actual slug: nrna, uml, ncp, etc.
+
+# Run migrations
+php artisan tenants:artisan "migrate" --tenant={tenant}
+
+# Run specific migration file
+php artisan tenants:artisan "migrate --path=app/Contexts/TenantAuth/.../migration.php" --tenant={tenant}
+
+# Seed data
+php artisan tenants:artisan "db:seed --class=TenantSeeder" --tenant={tenant}
+
+# Check status
+php artisan tenants:artisan "migrate:status" --tenant={tenant}
+
+# Rollback
+php artisan tenants:artisan "migrate:rollback" --tenant={tenant}
+
+# Run ANY artisan command
+php artisan tenants:artisan "cache:clear" --tenant={tenant}
+```
+
+### **For All Tenants:**
+```bash
+# Run on ALL tenants at once
+php artisan tenants:artisan "migrate"
+
+# Be careful! This affects all tenants
+```
+
+### **Landlord Only:**
+```bash
+# No --tenant flag means landlord
+php artisan migrate          # Landlord DB only
+php artisan db:seed         # Landlord DB only
+php artisan tinker          # Connects to landlord DB
+```
+
+## 📊 **PART 6: VISUAL WORKFLOW**
+
+```
+[YOU]
+   │
+   ├── Want to manage tenants list?
+   │   └── Landlord DB → `php artisan tinker`
+   │
+   ├── Want to modify tenant's data?
+   │   └── Specific Tenant DB → `php artisan tenants:artisan --tenant=xxx`
+   │
+   └── Want to run on all tenants?
+       └── All Tenant DBs → `php artisan tenants:artisan` (no --tenant)
+```
+
+## 🎯 **PART 7: CONTEXT-SPECIFIC MIGRATION RUNNER**
+
+Create a custom command for TenantAuth context:
+
+```bash
+php artisan make:command TenantAuthMigrate
+```
+
+```php
+// app/Console/Commands/TenantAuthMigrate.php
+protected $signature = 'tenantauth:migrate 
+                        {tenant? : Tenant slug (all if empty)}
+                        {--fresh : Fresh migration}
+                        {--seed : Run seeders}';
+
+public function handle()
+{
+    $slug = $this->argument('tenant');
+    
+    if ($slug) {
+        // Single tenant
+        $tenant = Tenant::where('slug', $slug)->firstOrFail();
+        $this->migrateTenant($tenant);
+    } else {
+        // All tenants
+        Tenant::all()->each(fn($tenant) => $this->migrateTenant($tenant));
+    }
+}
+
+protected function migrateTenant($tenant)
+{
+    $tenant->makeCurrent();
+    
+    $command = $this->option('fresh') ? 'migrate:fresh' : 'migrate';
+    
+    Artisan::call($command, [
+        '--database' => 'tenant',
+        '--path' => 'app/Contexts/TenantAuth/Infrastructure/Database/Migrations',
+        '--seed' => $this->option('seed'),
+    ]);
+    
+    $this->info("✅ {$tenant->name} migrated");
+}
+```
+
+Use it:
+```bash
+# Migrate specific tenant's TenantAuth context
+php artisan tenantauth:migrate nrna
+
+# Fresh migrate with seed
+php artisan tenantauth:migrate uml --fresh --seed
+
+# Migrate ALL tenants
+php artisan tenantauth:migrate
+```
+
+## ✅ **SUMMARY: EASY RULES**
+
+1. **`--tenant=xxx`** → That specific tenant's database
+2. **No `--tenant`** → Either landlord or ALL tenants
+3. **TenantAuth context** → Only tenant DB migrations
+4. **Check `--path`** → Points to correct context migrations
+5. **Test with `migrate:status`** → See what will run where
+
+## 🚨 **COMMON SCENARIOS & SOLUTIONS:**
+
+**Q:** "I ran `php artisan migrate` but tenant tables didn't create"
+**A:** You ran on landlord! Use `php artisan tenants:artisan "migrate" --tenant=xxx`
+
+**Q:** "Should I put `create_roles_table.php` in TenantAuth?"
+**A:** No! Spatie creates it. Put only `add_tenant_columns_to_roles.php` in TenantAuth.
+
+**Q:** "How to know which tenant I'm affecting?"
+**A:** Always check: Are you using `--tenant` flag? Which slug?
+
+**Q:** "Where does `tenants` table migration go?"
+**A:** Global migrations (landlord), NOT in TenantAuth context.
+
+Need help with a specific scenario? Tell me what you're trying to do and I'll give you the exact command!

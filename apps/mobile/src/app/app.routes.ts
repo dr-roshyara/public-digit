@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guards'; // Import the functional route guard
 import { architectureGuard, blockAdminGuard } from './core/guards/architecture.guard';
+import { tenantContextGuard } from './core/guards/tenant-context.guard';
 import { LoginComponent } from '@presentation/pages/auth/login/login.component';
 import { LandingComponent } from './landing/landing.component';
 import { TailwindTestComponent } from './tailwind-test/tailwind-test.component';
@@ -19,7 +20,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('@presentation/pages/dashboard/dashboard.page').then(m => m.DashboardPage),
-    canActivate: [authGuard, architectureGuard]  // Auth + Architecture validation
+    canActivate: [authGuard, tenantContextGuard, architectureGuard]  // Auth + Tenant context + Architecture validation
   },
 
   // Admin Routes - BLOCKED for Angular app

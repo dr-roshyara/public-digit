@@ -1,0 +1,15 @@
+# CLAUDE PROJECT CONTEXT 
+Project: angular-mobile 
+Date: 01.12.2025 19:18:54,69 
+Technology: angular,capacitor,rxjs 
+API Base: http://localhost:8000/api/v1 
+Focus Areas: frontend,mobile,authentication-ui 
+ 
+ 
+PRIMARY RESPONSIBILITIES: 
+- Angular mobile app development 
+- Capacitor native integration 
+- Dual-API authentication flow 
+- Internationalization (i18n) 
+- Mobile-responsive UI/UX 
+ 

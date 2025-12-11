@@ -1,19 +1,18 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, map, from, switchMap, catchError, throwError, of } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, catchError, throwError, of } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import { ApiService } from './api.service';
-import { TenantContextService } from './tenant-context.service';
-import { LoginRequest, LoginResponse, User, ApiResponse, Tenant } from '../models/auth.models';
+import { LoginRequest, LoginResponse, User, ApiResponse } from '../models/auth.models';
 
 /**
- * Authentication Service
+ * Simplified Authentication Service for Mobile App
  *
- * Handles user authentication with multi-tenant support:
- * - Login with optional tenant slug (for mobile)
+ * Handles user authentication with dual-API approach:
+ * - Platform Login: Login at platform level (NO tenant slug required)
+ * - Tenant Selection: User selects tenant after login
  * - Secure token storage using Capacitor Preferences
- * - Integration with TenantContextService
- * - Auto-navigation based on tenant context
+ * - Uses ApiService for both platform and tenant-specific API calls
  */
 @Injectable({
   providedIn: 'root'
@@ -21,17 +20,12 @@ import { LoginRequest, LoginResponse, User, ApiResponse, Tenant } from '../model
 export class AuthService {
   private readonly AUTH_TOKEN_KEY = 'auth_token';
   private readonly CURRENT_USER_KEY = 'current_user';
-  private readonly USER_TENANTS_KEY = 'user_tenants';
 
   private apiService = inject(ApiService);
-  private tenantContext = inject(TenantContextService);
   private router = inject(Router);
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-
-  private userTenantsSubject = new BehaviorSubject<Tenant[]>([]);
-  public userTenants$ = this.userTenantsSubject.asObservable();
 
   constructor() {
     this.initializeAuth();
@@ -52,38 +46,27 @@ export class AuthService {
   }
 
   /**
-   * Unified login method for both web and mobile
+   * Login with tenant slug and credentials
    *
+   * @param tenantSlug - Tenant slug (required)
    * @param credentials - Email and password
-   * @param tenantSlug - Optional tenant slug (required for mobile first login)
    */
-  login(credentials: LoginRequest, tenantSlug?: string): Observable<LoginResponse> {
-    // Set tenant context if provided (mobile scenario)
-    if (tenantSlug) {
-      console.log(`🏢 Setting tenant context before login: ${tenantSlug}`);
-      return from(this.tenantContext.setTenantSlug(tenantSlug)).pipe(
-        switchMap(() => this.performLogin(credentials))
-      );
-    }
+  login(tenantSlug: string, credentials: LoginRequest): Observable<LoginResponse> {
+    console.log(`🏢 Setting tenant context before login: ${tenantSlug}`);
 
-    return this.performLogin(credentials);
-  }
+    // Set tenant context in ApiService
+    this.apiService.setTenantSlug(tenantSlug);
 
-  /**
-   * Perform the actual login API call
-   */
-  private performLogin(credentials: LoginRequest): Observable<LoginResponse> {
     return this.apiService.login(credentials).pipe(
-      switchMap(apiResponse => {
+      map(apiResponse => {
         // Unwrap ApiResponse<LoginResponse> to get LoginResponse
         if (apiResponse.success && apiResponse.data) {
-          return from(this.handleSuccessfulLogin(apiResponse.data)).pipe(
-            map(() => apiResponse.data!)
-          );
+          return apiResponse.data;
         } else {
-          return throwError(() => new Error(apiResponse.message || 'Login failed'));
+          throw new Error(apiResponse.message || 'Login failed');
         }
       }),
+      tap(loginData => this.handleSuccessfulLogin(loginData)),
       catchError(error => this.handleLoginError(error))
     );
   }
@@ -92,55 +75,40 @@ export class AuthService {
    * Handle successful login - store token and navigate
    */
   private async handleSuccessfulLogin(loginData: LoginResponse): Promise<void> {
-    // loginData is now { token, user } - no wrapper
     await this.setSession(loginData);
     this.currentUserSubject.next(loginData.user);
 
     console.log('✅ Login successful');
-
-    // Navigate based on platform and tenant context
-    if (this.tenantContext.hasTenantContext()) {
-      this.router.navigate(['/dashboard']);
-    } else {
-      // This shouldn't happen, but fallback to tenant selection if needed
-      this.router.navigate(['/login']);
-    }
+    this.router.navigate(['/dashboard']);
   }
 
   /**
-   * Handle login errors - clear tenant context on auth failure
+   * Handle login errors
    */
   private handleLoginError(error: any): Observable<never> {
     console.error('❌ Login failed:', error);
-
-    // Clear tenant context on auth failure (prevents stuck state)
-    this.tenantContext.clearTenant();
-
     return throwError(() => error);
   }
 
   /**
-   * Logout - clear auth token but preserve tenant context
+   * Logout - clear auth token
    */
   logout(): Observable<void> {
     return this.apiService.logout().pipe(
-      switchMap(() => from(this.clearAuth())),
+      map(() => {}), // Convert ApiResponse<void> to void
+      tap(() => this.clearAuth()),
       tap(() => {
         this.currentUserSubject.next(null);
-        // NOTE: Tenant context is preserved for next login
-        console.log('✅ Logged out (tenant context preserved)');
-        this.router.navigate(['/']);
+        console.log('✅ Logged out');
+        this.router.navigate(['/login']);
       }),
       catchError((error) => {
         // Even if API call fails, clear local session
         console.warn('⚠️ Logout API failed, clearing local session anyway');
-        return from(this.clearAuth()).pipe(
-          tap(() => {
-            this.currentUserSubject.next(null);
-            this.router.navigate(['/']);
-          }),
-          map(() => undefined)
-        );
+        this.clearAuth();
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
+        return throwError(() => error);
       })
     );
   }
@@ -191,54 +159,6 @@ export class AuthService {
     return null;
   }
 
-  /**
-   * Load user's tenants from API
-   *
-   * @param refresh - Force refresh from API (bypass cache)
-   * @returns Observable<Tenant[]> - List of active tenants user has access to
-   */
-  loadUserTenants(refresh = false): Observable<Tenant[]> {
-    // Return cached tenants if available and not forcing refresh
-    if (!refresh && this.userTenantsSubject.value.length > 0) {
-      return of(this.userTenantsSubject.value);
-    }
-
-    return this.apiService.getUserTenants().pipe(
-      map(response => {
-        if (!response.success || !response.data) {
-          throw new Error(response.message || 'Failed to load tenants');
-        }
-
-        // Filter to only active tenants
-        const activeTenants = response.data.filter(tenant => tenant.status === 'active');
-
-        return activeTenants;
-      }),
-      tap(async (tenants) => {
-        // Update in-memory cache
-        this.userTenantsSubject.next(tenants);
-
-        // Store in secure storage for offline access
-        await this.storeTenants(tenants);
-
-        console.log(`✅ Loaded ${tenants.length} tenant(s)`);
-      }),
-      catchError(error => {
-        console.error('❌ Failed to load user tenants:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  /**
-   * Get user's tenants (from cache)
-   *
-   * @returns Observable<Tenant[]> - Cached list of tenants
-   */
-  getUserTenants(): Observable<Tenant[]> {
-    return of(this.userTenantsSubject.value);
-  }
-
   // ==========================================
   // PRIVATE: Secure Storage Methods
   // ==========================================
@@ -279,17 +199,12 @@ export class AuthService {
     try {
       await Preferences.remove({ key: this.AUTH_TOKEN_KEY });
       await Preferences.remove({ key: this.CURRENT_USER_KEY });
-      await Preferences.remove({ key: this.USER_TENANTS_KEY });
 
       // Also clear localStorage
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.removeItem(this.AUTH_TOKEN_KEY);
         localStorage.removeItem(this.CURRENT_USER_KEY);
-        localStorage.removeItem(this.USER_TENANTS_KEY);
       }
-
-      // Clear in-memory tenants cache
-      this.userTenantsSubject.next([]);
 
       console.log('🗑️ Auth session cleared');
     } catch (error) {
@@ -320,27 +235,6 @@ export class AuthService {
     } catch (error) {
       console.error('❌ Failed to retrieve user data:', error);
       return null;
-    }
-  }
-
-  /**
-   * Store user's tenants in secure storage
-   */
-  private async storeTenants(tenants: Tenant[]): Promise<void> {
-    try {
-      await Preferences.set({
-        key: this.USER_TENANTS_KEY,
-        value: JSON.stringify(tenants)
-      });
-
-      // Also set in localStorage for web compatibility
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(this.USER_TENANTS_KEY, JSON.stringify(tenants));
-      }
-
-      console.log('💾 Tenants stored securely');
-    } catch (error) {
-      console.error('❌ Failed to store tenants:', error);
     }
   }
 }
