@@ -1,10 +1,11 @@
 # CLAUDE PROJECT CONTEXT 
-Project: angular-mobile 
-Date: 01.12.2025 19:18:54,69 
-Technology: angular,capacitor,rxjs 
-API Base: http://localhost:8000/api/v1 
-Focus Areas: frontend,mobile,authentication-ui 
+Project: laravel-backend 
+Date: 13.12.2025 21:51:08,93 
+Technology: laravel-12,ddd,multi-tenancy 
+API Base: http://localhost:8000 
+Focus Areas: backend,api,authentication 
  
+- Database migrations (landlord/tenant
  
 PRIMARY RESPONSIBILITIES: 
 - Angular mobile app development 

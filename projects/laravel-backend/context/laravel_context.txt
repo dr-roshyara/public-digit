@@ -1,0 +1,16 @@
+# ANGULAR MOBILE APP PROJECT 
+ 
+Target Platforms: Mobile (Capacitor) + Desktop (Web) 
+Architecture: Angular with RxJS reactive patterns 
+Authentication: Dual-API system 
+Internationalization: Location-based + manual selection 
+ 
+BACKEND INTEGRATION: 
+- Platform APIs: http://localhost:8000/api/v1 
+- Tenant APIs: https://{slug}.publicdigit.com/api/v1 
+ 
+AUTHENTICATION FLOW: 
+1. Welcome → Language detection 
+2. Platform login → Get available tenants 
+3. Tenant selection → Switch context 
+4. Tenant authentication → Access dashboard 

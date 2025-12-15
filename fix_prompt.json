@@ -1,0 +1,15 @@
+{
+  "model": "deepseek-chat",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Generate creative, practical fixes for Laravel multi-tenant issues. Provide: 1. Immediate fix 2. Robust solution 3. Innovative approach. Include code snippets, TDD tests, and migration steps."
+    },
+    {
+      "role": "user",
+      "content": "ISSUE: Read C:\Users\nabra\OneDrive\Desktop\roshyara\xamp\nrna\public-digit-platform\architecture\backend\tenant_database\base_schema\20251213_2142_debug_claude_debug_no_password.md\\n\\nCONTEXT: Multi-tenant Laravel election platform. Current location: C:\Users\nabra\OneDrive\Desktop\roshyara\xamp\nrna\public-digit-platform\packages\laravel-backend\\n\\nREQUIREMENTS: 1. Working code solution 2. Database migrations if needed 3. TDD test cases 4. Security considerations 5. Performance impact"
+    }
+  ],
+  "temperature": 0.9,
+  "max_tokens": 6000
+}

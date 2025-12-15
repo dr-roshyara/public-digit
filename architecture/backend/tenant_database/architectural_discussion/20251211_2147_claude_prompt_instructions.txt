@@ -1,0 +1,193 @@
+# 🎯 **PROMPT ENGINEERING RESPONSE FOR CLAUDE CLI**
+
+## **RESPONSE:** Option 1 - Yes, create the template_modules migration
+
+## **FOLLOW-UP INSTRUCTIONS FOR CLAUDE:**
+
+```markdown
+## **NEXT STEPS - COMPLETE LANDLORD SCHEMA:**
+
+### **1. Create Remaining Migration Files:**
+
+**Next: Template Versions Table**
+```bash
+# Generate template_versions migration
+# This tracks version history and migrations
+```
+
+**Then: Update Tenants Table**
+```bash
+# Add template relationship columns to tenants
+# This links tenants to their template
+```
+
+### **2. Specific Prompts for Remaining Migrations:**
+
+**Prompt for Template Versions Table:**
+```markdown
+# CONTEXT: Template version control system
+# ROLE: Database Versioning Specialist
+# TASK: Create template_versions table migration
+
+Generate Laravel migration for `template_versions` table:
+
+## **Purpose:**
+- Track version history of templates
+- Store migration SQL for upgrades/downgrades
+- Record breaking changes
+- Track who created versions
+
+## **Columns Needed:**
+- id, template_id (foreign), version (varchar, semantic versioning)
+- previous_version (for rollback tracking)
+- migration_sql: longtext (SQL to upgrade to this version)
+- rollback_sql: longtext (SQL to downgrade from this version)
+- is_breaking: boolean (requires manual intervention)
+- release_notes: text (what changed in this version)
+- applied_at: timestamp (when this version was created)
+- created_by: unsignedBigInteger (user who created version)
+- checksum: string (hash of migration_sql for verification)
+- metadata: json (additional version info)
+- timestamps
+
+## **Indexes:**
+- template_id + version (unique composite)
+- template_id + is_breaking
+- created_at (for version history)
+- checksum (for deduplication)
+
+## **Relationships:**
+- Foreign key to tenant_templates (cascade delete)
+```
+
+**Prompt for Tenants Table Update:**
+```markdown
+# CONTEXT: Linking tenants to templates
+# ROLE: Database Integration Specialist
+# TASK: Add template columns to tenants table
+
+Generate Laravel migration to update `tenants` table:
+
+## **New Columns to Add:**
+1. template_id: foreignId nullable -> constrained to tenant_templates
+2. template_version: string(50) nullable -> version of template used
+3. initial_schema_hash: string(64) nullable -> hash of schema at creation
+4. last_schema_sync: timestamp nullable -> when template was last synced
+5. is_customized: boolean default false -> has tenant made custom changes
+6. customization_count: integer default 0 -> number of customizations
+7. Add to metadata column: template_config json field
+
+## **Indexes to Add:**
+- template_id index
+- template_version index  
+- is_customized index
+- last_schema_sync index
+
+## **Migration Notes:**
+- Make columns nullable for existing tenants
+- Add foreign key constraint
+- Update existing tenants to use default template if needed
+```
+
+### **3. After Migrations: Create Models**
+
+Once all migrations are created, generate models:
+```bash
+php artisan make:model TenantTemplate
+php artisan make:model TemplateModule
+php artisan make:model TemplateVersion
+
+# Add relationships:
+# TenantTemplate hasMany TemplateModule
+# TenantTemplate hasMany TemplateVersion
+# TemplateModule belongsTo TenantTemplate
+# TemplateVersion belongsTo TenantTemplate
+```
+
+### **4. Run Migrations & Verify:**
+```bash
+# After all 4 migrations are created:
+cd packages/laravel-backend
+php artisan migrate
+
+# Verify all tables exist
+php artisan tinker --execute="
+use Illuminate\Support\Facades\Schema;
+\$tables = ['tenant_templates', 'template_modules', 'template_versions'];
+foreach (\$tables as \$table) {
+    \$exists = Schema::hasTable(\$table) ? '✅' : '❌';
+    echo \"\$exists \$table\\n\";
+}
+echo 'Tenants has template_id: ' . (Schema::hasColumn('tenants', 'template_id') ? '✅' : '❌') . '\\n';
+"
+```
+
+## **PARALLEL TASK - PREPARE TEMPLATE CONTENT:**
+
+While Claude generates migrations, we should plan the actual template content:
+
+### **A. RBAC Module SQL (Our current work):**
+```sql
+-- File: database/templates/modules/rbac/schema.sql
+-- Contains: tenant_roles, tenant_permissions tables
+-- Plus: model_has_roles, role_has_permissions pivot tables
+```
+
+### **B. Political Party Template:**
+```sql
+-- File: database/templates/political_party/schema.sql
+-- Core tables: party_members, party_committees, constituencies
+-- Includes RBAC module as dependency
+```
+
+### **C. Template Seeder:**
+```sql
+-- File: database/templates/political_party/seed.sql
+-- Default admin user
+-- Nepali political party settings
+-- Initial committee structure
+```
+
+## **IMMEDIATE ACTION PLAN:**
+
+1. ✅ Create tenant_templates migration
+2. ✅ Create template_modules migration  
+3. 🔄 Create template_versions migration (NEXT)
+4. 🔄 Update tenants table migration
+5. 🔄 Create model files with relationships
+6. 🔄 Run migrations to create tables
+7. 🔄 Generate RBAC module SQL
+8. 🔄 Generate political party template
+
+## **CLAUDE'S NEXT TASKS:**
+
+**After creating template_modules migration:**
+
+1. Generate template_versions migration
+2. Generate tenants table update migration  
+3. Create model files with proper relationships
+4. Help generate RBAC module SQL
+
+**Proceed with creating template_versions migration next.** 🚀
+```
+
+## **IMPORTANT CONSIDERATION:**
+
+We need to decide on **template storage approach**:
+
+**Option A: SQL files in filesystem** (Current approach)
+- Templates stored as `.sql` files in `database/templates/`
+- Modules as separate files
+- Easy to version control with Git
+
+**Option B: SQL in database** (Migration approach)
+- Templates stored in `tenant_templates.schema_sql` column
+- Modules in `template_modules.schema_sql`
+- Centralized management in landlord DB
+
+**Recommendation:** **Hybrid approach**
+- Store template definitions in database (for management)
+- Keep actual SQL files for version control
+- Use database as index/catalog of available templates
+
+**Approve the migration and continue with the schema completion.**

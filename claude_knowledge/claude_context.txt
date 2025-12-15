@@ -1,0 +1,14 @@
+# CLAUDE CONTEXT WITH LOCAL KNOWLEDGE
+# Session: 20251214_102615
+# Date: 14.12.2025 10:26:44,32
+
+## LOCAL KNOWLEDGE BASE:
+
+## CURRENT QUESTION:
+ Now read and update the tenant application .
+
+## INSTRUCTIONS:
+1. Reference local knowledge when applicable
+2. Update knowledge base with new insights
+3. Follow CLAUDE.md rules if present
+4. Provide code examples when relevant

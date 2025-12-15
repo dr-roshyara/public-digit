@@ -1,0 +1,8 @@
+Platform APIs: 
+"  - GET    /api/v1/tenants" 
+"  - POST   /api/v1/auth/login" 
+"  - GET    /api/v1/auth/me" 
+ 
+Tenant APIs: 
+"  - POST   {slug}/api/v1/auth/login" 
+"  - GET    {slug}/api/v1/auth/me" 

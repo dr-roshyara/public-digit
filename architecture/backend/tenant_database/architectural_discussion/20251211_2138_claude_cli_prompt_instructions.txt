@@ -1,0 +1,260 @@
+# 🎯 **PROMPT ENGINEERING: INTEGRATING TEMPLATES INTO TENANT APPROVAL PROCESS**
+
+Perfect! Now I understand the complete workflow. Let me provide the prompt engineering instructions for integrating templates into your tenant approval process.
+
+## **CURRENT UNDERSTANDING:**
+You have a **tenant approval workflow** that creates tenant databases, but currently **no template system** exists. We need to:
+
+1. **Create template system** first
+2. **Integrate templates** into approval workflow
+3. **Apply selected template** when approving tenant
+
+## **PROMPT ENGINEERING INSTRUCTIONS:**
+
+```markdown
+# 🏗️ **ARCHITECTURE: Template Integration into Tenant Approval**
+
+## **CURRENT WORKFLOW (Without Templates):**
+```
+Tenant Application → Admin Review → Approve → Create Database → Basic Setup
+```
+
+## **NEW WORKFLOW (With Templates):**
+```
+Tenant Application → Admin Review → SELECT TEMPLATE → Approve → 
+Create Database from Template → Apply Customizations → Complete
+```
+
+## **IMMEDIATE TASKS FOR CLAUDE:**
+
+### **Phase 1: Create Template System Foundation (Today)**
+```bash
+# 1. Create Template Management Tables in Landlord DB
+php artisan make:migration create_tenant_templates_table
+php artisan make:migration create_template_modules_table
+
+# 2. Create Political Party Template
+mkdir -p database/templates/political_party
+```
+
+### **Phase 2: Modify Approval Process (Tomorrow)**
+```bash
+# 3. Add template selection to approval interface
+php artisan make:livewire admin/tenant-approval-with-template
+
+# 4. Update tenant creation service
+php artisan make:service TemplateBasedTenantCreator
+```
+
+### **Phase 3: Template Application (Day 3)**
+```bash
+# 5. Create template application engine
+php artisan make:service TemplateApplicator
+
+# 6. Add template version tracking
+php artisan make:migration add_template_columns_to_tenants_table
+```
+
+## **SPECIFIC CODE GENERATION REQUESTS:**
+
+Please generate these components **IN ORDER**:
+
+### **1. First: Landlord Template Schema (Most Critical)**
+```sql
+-- Generate COMPLETE landlord database schema for template management
+-- Required for: Storing templates, versions, modules
+-- Format: Laravel migration files
+-- Priority: HIGHEST - Needed immediately
+```
+
+### **2. Second: Political Party Template SQL**
+```sql
+-- Generate COMPLETE political party database template
+-- Includes: Nepali-specific tables for membership, committees, elections
+-- Format: MySQL SQL file
+-- Location: database/templates/political_party/schema.sql
+```
+
+### **3. Third: Template Selection Interface**
+```php
+// Generate Livewire component for template selection during approval
+// Features: Template preview, module selection, customization options
+// Integration: Works with existing approval workflow
+```
+
+### **4. Fourth: Template Application Service**
+```php
+// Generate service that:
+// 1. Takes tenant + template
+// 2. Creates database from template
+// 3. Applies customizations
+// 4. Sets up initial data
+```
+
+## **WORKFLOW INTEGRATION POINTS:**
+
+Identify where template integration happens in your current code:
+
+```bash
+# Look for current tenant creation code
+grep -r "CREATE DATABASE" packages/laravel-backend/
+grep -r "tenant.*approve" packages/laravel-backend/
+grep -r "Tenant::create" packages/laravel-backend/
+```
+
+## **PROMPT FOR CLAUDE TO GENERATE:**
+
+```markdown
+# CONTEXT: Integrating templates into existing tenant approval workflow
+# ROLE: Senior Integration Architect
+# TASK: Create template system that integrates with current approval process
+
+## **CURRENT SYSTEM ANALYSIS NEEDED:**
+1. How are tenant applications currently stored?
+2. Where is the approval decision made?
+3. What triggers database creation?
+4. What is the current database structure for new tenants?
+
+## **REQUIREMENTS FOR TEMPLATE INTEGRATION:**
+
+### **Database Changes (Landlord):**
+1. `tenant_templates` table - Store template definitions
+2. `template_modules` table - Modular template components
+3. `tenant_template_selections` - Track which template each tenant uses
+4. Add `template_id` to `tenants` table
+
+### **Approval Process Changes:**
+1. Add template selection step to approval UI
+2. Modify approval logic to include template application
+3. Update email notifications to mention template type
+
+### **Template Application Process:**
+1. On approval: Create database with name `tenant_{slug}`
+2. Apply selected template SQL
+3. Seed initial data based on template
+4. Apply any customizations/modules selected
+5. Create admin user with credentials
+
+## **NEPALI POLITICAL PARTY TEMPLATE SPECIFICS:**
+- Default roles: super_admin, committee_chair, district_coordinator, member
+- Default tables: members, committees, constituencies, donations
+- Nepali data: 77 districts, 7 provinces, citizenship validation
+- Seed data: Default admin, party settings, basic committees
+
+## **OUTPUT NEEDED (IN ORDER):**
+
+### **1. Landlord Database Schema for Template Management**
+```sql
+-- Complete migration files for:
+-- tenant_templates, template_modules, tenant_template_selections
+-- Include relationships and indexes
+```
+
+### **2. Political Party Template SQL**
+```sql
+-- Complete database schema for Nepali political parties
+-- 15-20 tables covering membership, hierarchy, elections
+-- Ready to be applied to new tenant databases
+```
+
+### **3. TemplateSelectionService**
+```php
+// Service that:
+// - Lists available templates
+// - Shows template details/modules
+// - Handles template selection during approval
+// - Returns SQL to apply
+```
+
+### **4. TemplateApplicator Service**
+```php
+// Service that:
+// - Takes template SQL and applies to new database
+// - Handles errors and rollbacks
+// - Seeds initial data
+// - Returns success/failure status
+```
+
+## **INTEGRATION POINTS TO IDENTIFY:**
+Please examine the current codebase and tell me:
+1. Where tenant approval happens (Controller/Service)
+2. Where database creation happens
+3. Current tenant table structure
+4. Any existing template-like functionality
+
+## **GENERATE IN THIS ORDER:**
+1. First: Landlord schema (prerequisite for everything)
+2. Second: Political party template (core content)
+3. Third: Integration services (connect to existing system)
+4. Fourth: UI components (template selection interface)
+```
+
+## **EXECUTION STRATEGY:**
+
+```markdown
+## **WEEK 1 IMPLEMENTATION PLAN:**
+
+### **Day 1-2: Template System Foundation**
+- [ ] Create landlord template tables
+- [ ] Create political party template SQL
+- [ ] Create basic template management UI
+
+### **Day 3-4: Integration with Approval**
+- [ ] Modify approval controller to accept template_id
+- [ ] Create template application service
+- [ ] Update tenant creation to use template
+
+### **Day 5: Testing & Deployment**
+- [ ] Test complete workflow
+- [ ] Create migration for existing tenants
+- [ ] Deploy to staging
+
+## **SPECIFIC CLAUDE PROMPTS TO USE:**
+
+### **Prompt 1: Landlord Schema Generation**
+"Generate complete Laravel migration files for template management system including: tenant_templates, template_modules, and template_versions tables with proper relationships and indexes."
+
+### **Prompt 2: Political Party Template**
+"Generate complete MySQL database schema for Nepali political party template including: member registration with citizenship validation, committee hierarchy (central→province→district→ward), election management, and financial tracking tables."
+
+### **Prompt 3: Integration Service**
+"Generate a TemplateApplicator service class that integrates with existing tenant approval workflow. It should take a tenant application and selected template, create the database, apply template SQL, seed initial data, and handle errors."
+
+### **Prompt 4: Template Selection UI**
+"Generate a Livewire component for template selection during tenant approval. It should show available templates, their features, allow module selection, and preview the database structure."
+```
+
+## **IMMEDIATE NEXT STEP:**
+
+Since Claude is currently verifying RBAC migrations, after that completes:
+
+```markdown
+## **NEXT INSTRUCTION FOR CLAUDE:**
+
+Once RBAC migration verification is complete, please:
+
+1. **First:** Generate the landlord database schema for template management
+2. **Second:** Generate the political party template SQL
+3. **Third:** Show me where in the current codebase the tenant approval happens
+
+Use these specific prompts:
+
+**Prompt for Landlord Schema:**
+"Create Laravel migration files for template management system. Include tables: tenant_templates (id, name, type, version, schema_sql, seed_sql, is_active), template_modules (id, template_id, name, schema_sql, is_optional), and template_versions (id, template_id, version, changes). Include proper foreign keys and indexes."
+
+**Prompt for Political Party Template:**
+"Generate complete MySQL schema for Nepali political party database template. Include tables for: party_members (with Nepali citizenship fields), party_committees (hierarchy structure), constituencies (Nepal's 165+330), election_candidates, donations, and meeting_minutes. Include Nepali-specific data types and validation."
+
+**Then help me locate:** The current tenant approval controller/service so we can integrate template selection.
+```
+
+## **SUMMARY:**
+
+**Your immediate instructions to Claude should be:**
+
+1. Complete RBAC verification (already in progress)
+2. Generate landlord template schema
+3. Generate political party template SQL  
+4. Identify integration points in current approval code
+
+**This creates a clear path from current system → template-integrated system without breaking existing functionality.**

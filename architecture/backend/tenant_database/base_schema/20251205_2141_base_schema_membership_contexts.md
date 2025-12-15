@@ -1,3 +1,5 @@
+Read the folllowing , analyse critically and implement as senior laravel developer professionally. Ask if you have any confusion . 
+
 # 🏗️ **COMPREHENSIVE BASE SCHEMA ARCHITECTURE FOR POLITICAL ORGANIZATIONS**  
 **Senior Solution Architect Review & Final Specification**
 
@@ -32,7 +34,7 @@
 
 ## 🗄️ **COMPLETE BASE SCHEMA SPECIFICATION**
 
-### **1. CORE IDENTITY: `users` Table**
+### **1. CORE IDENTITY: `tenant_users` Table**
 **Purpose:** Single source of truth for all human identities in the tenant system
 
 ```sql
