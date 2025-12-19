@@ -124,6 +124,8 @@ packages/laravel-backend/app/Contexts/
 ├── ElectionSetup/     # Election management domain
 ├── MobileDevice/      # Mobile-specific logic
 └── Shared/            # Cross-context utilities
+└── Membership/            # Members digitilization and member forum
+├── Geography/         # Geography 
 ```
 
 **DDD Patterns MUST Follow**:
