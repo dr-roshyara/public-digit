@@ -1,0 +1,24 @@
+# File: install.bat (for Windows)
+@echo off
+echo Setting up Knowledge-Based CLI with DeepSeek API...
+
+REM Create virtual environment
+python -m venv venv
+
+REM Activate virtual environment
+call venv\Scripts\activate
+
+REM Install requirements
+pip install requests
+
+echo.
+echo Installation complete!
+echo.
+echo Usage:
+echo   python knowledge_cli.py develop "Your task here"
+echo   python knowledge_cli.py search "query"
+echo   python knowledge_cli.py list
+echo   python knowledge_cli.py setup-api-key YOUR_DEEPSEEK_API_KEY
+echo.
+echo Get your API key from: https://platform.deepseek.com/api_keys
+pause

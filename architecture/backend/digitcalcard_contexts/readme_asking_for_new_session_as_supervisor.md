@@ -1,0 +1,4 @@
+- I want to start develop phase 1 from begining. I need a supervisor whom I can ask is it correct or not ? the suporvisor should write short prompt instructions if correct. If not correct then it should write a prompt instruction to clarify what is correct. 
+- For that the supervisor should understand the whole background of what we want to develop.  
+- now this chat seesion is at end . i need to start new chat session. 
+- please write the summary and background of what we are developing so that the new chat session  so that new chat session can work as supervisor for me. 
