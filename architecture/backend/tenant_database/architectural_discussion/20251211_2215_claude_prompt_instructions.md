@@ -270,4 +270,4 @@ Begin with the `party_members` table and build complete schema.
 
 **Claude should now generate the complete political party template SQL with all the specified requirements.**
 
-**This will be the foundation for Nepali political party digitization.** 🚀 
+**This will be the foundation for Nepali political party digitization.** 🚀     
