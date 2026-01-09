@@ -1144,4 +1144,46 @@ Treat this system as **production-critical, regulation-grade software**.
 Every suggestion must be **architecturally justified**.
 Proceed only when fully aligned with the above constraints. 
 
+#
+# 🎨 **BRANDING SYSTEM OVERVIEW**
+
+## **WHAT IT IS**
+Centralized, multi-tenant branding management for Public Digit Platform. Handles visual identity, logos, colors, and WCAG-compliant theming across all tenant applications.
+
+## **ARCHITECTURE HIGHLIGHTS**
+- **Database**: Landlord DB (centralized branding storage)
+- **Context**: `Platform::Branding` (pure DDD bounded context)
+- **Data Flow**: Branding → Landlord DB → All tenant apps via APIs
+
+## **CORE FEATURES**
+1. **Visual Identity**: Colors, logos, typography, layouts
+2. **WCAG 2.1 AA Compliance**: Automatic contrast validation
+3. **State Management**: DRAFT → PUBLISHED → ARCHIVED workflow
+4. **Version Control**: Optimistic locking with audit trails
+5. **Multi-tenant Isolation**: TenantId in all domain operations
+
+## **CRITICAL RULES**
+- ✅ **Democratic Integrity**: Drafts cannot archive (must publish first)
+- ✅ **Accessibility First**: All branding must pass WCAG AA standards
+- ✅ **Audit Trails**: Version increments on every change
+- ✅ **Domain Purity**: No CDN URLs in domain layer (pure paths only)
+
+## **PHASES**
+- **Phase 2/3**: Basic tenant branding (existing)
+- **Phase 4**: Admin dashboard with state/version/assets (current)
+- **Phase 5**: Advanced features (A/B testing, dark mode, etc.)
+
+## **API PATTERNS**
+- **Desktop Admin**: `/api/v1/branding/*` (Vue 3 SPA)
+- **Mobile Apps**: `/mapi/v1/public/branding/{tenantSlug}` (Angular/Ionic)
+- **Public Access**: No authentication required for branding fetch
+
+## **SECURITY**
+- **Tenant Isolation**: Branding data scoped to tenant slugs
+- **No Enumeration**: Public endpoints don't reveal tenant existence
+- **WCAG as Business Rule**: Validation in domain layer, not just UI
+
+---
+
+**IMPACT**: Every tenant's visual identity across desktop admin, mobile apps, and login pages. Critical for brand consistency and accessibility compliance in democratic infrastructure.
 
